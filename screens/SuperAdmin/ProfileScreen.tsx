@@ -282,7 +282,7 @@ const ProfileScreen: React.FC = () => {
             textStyles={styles.logoutButtonText}
           />
         </View>
-        <Footer />
+        <Footer marginTop={20}/>
       </ScrollView>
     </View>
   );
