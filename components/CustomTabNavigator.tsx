@@ -7,6 +7,7 @@ import {
   ColorValue,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 import Animated, {
   useAnimatedStyle,
   withTiming,
@@ -14,36 +15,35 @@ import Animated, {
 } from "react-native-reanimated";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
-import { useTheme } from "../hooks/useTheme"; 
-import { Theme } from "../styles/theme";
+import { useTheme } from "../hooks/useTheme";
 
 // --- Constants ---
 const TAB_BAR_HEIGHT = 80;
-const TIMING_CONFIG = { 
+const TIMING_CONFIG = {
   duration: 200,
   easing: Easing.inOut(Easing.ease),
 };
+
 // --- Types ---
 interface TabItem {
   name: string;
   label: string;
   icon: keyof typeof Ionicons.glyphMap;
+  iconOutline: keyof typeof Ionicons.glyphMap;
 }
 
-interface CustomTabNavigatorProps {
+interface CustomTabNavigatorProps extends BottomTabBarProps {
   tabs: TabItem[];
-  activeTab: string;
-  onTabPress: (tabName: string) => void;
 }
 
 interface TextRevealTabProps {
   tab: TabItem;
   isActive: boolean;
-  onPress: (name: string) => void;
+  onPress: () => void;
 }
 
 // --- Style Factory ---
-const getStyles = (theme: Theme, insets: { bottom: number }) =>
+const getStyles = (insets: { bottom: number }) =>
   StyleSheet.create({
     container: {
       position: "absolute",
@@ -84,7 +84,7 @@ const getStyles = (theme: Theme, insets: { bottom: number }) =>
 const TextRevealTab: React.FC<TextRevealTabProps> = React.memo(
   ({ tab, isActive, onPress }) => {
     const theme = useTheme();
-    const styles = useMemo(() => getStyles(theme, { bottom: 0 }), [theme]);
+    const styles = useMemo(() => getStyles({ bottom: 0 }), [theme]);
 
     // Animate the background color of the tab container
     const animatedContainerStyle = useAnimatedStyle(() => {
@@ -104,10 +104,10 @@ const TextRevealTab: React.FC<TextRevealTabProps> = React.memo(
     });
 
     return (
-      <TouchableOpacity onPress={() => onPress(tab.name)} activeOpacity={0.8}>
+      <TouchableOpacity onPress={onPress} activeOpacity={0.8}>
         <Animated.View style={[styles.tabContainer, animatedContainerStyle]}>
           <Ionicons
-            name={tab.icon}
+            name={isActive ? tab.icon : tab.iconOutline}
             size={24}
             color={isActive ? theme.colors.background : theme.colors.primary}
           />
@@ -134,21 +134,24 @@ const TextRevealTab: React.FC<TextRevealTabProps> = React.memo(
   }
 );
 
-// --- Main Tab Navigator Component ---
 const CustomTabNavigator: React.FC<CustomTabNavigatorProps> = ({
+  state,
+  descriptors,
+  navigation,
   tabs,
-  activeTab,
-  onTabPress,
 }) => {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
-  const styles = useMemo(() => getStyles(theme, insets), [theme, insets]);
+  const styles = useMemo(() => getStyles(insets), [insets]);
 
   const gradientColors = useMemo(
     () => [
-      `${theme.colors.background}00`, // Transparent
-      `${theme.colors.background}CC`, // 80% opaque
-      `${theme.colors.background}FF`, // Fully opaque
+      `${theme.colors.background}00`,
+      `${theme.colors.background}66`,
+      `${theme.colors.background}77`,
+      `${theme.colors.background}88`,
+      `${theme.colors.background}AA`,
+      `${theme.colors.background}FF`,
     ],
     [theme.colors.background]
   );
@@ -157,19 +160,39 @@ const CustomTabNavigator: React.FC<CustomTabNavigatorProps> = ({
     <View style={styles.container} pointerEvents="box-none">
       <LinearGradient
         colors={gradientColors as [ColorValue, ColorValue, ColorValue]}
-        locations={[0, 0.2, 1]}
         style={styles.gradient}
         pointerEvents="auto"
       >
         <View style={styles.tabBar}>
-          {tabs.map((tab) => (
-            <TextRevealTab
-              key={tab.name}
-              tab={tab}
-              isActive={tab.name === activeTab}
-              onPress={onTabPress}
-            />
-          ))}
+          {state.routes.map((route, index) => {
+            const { options } = descriptors[route.key];
+            const isFocused = state.index === index;
+
+            // Find the corresponding tab config
+            const tabConfig = tabs.find((tab) => tab.name === route.name);
+            if (!tabConfig) return null;
+
+            const onPress = () => {
+              const event = navigation.emit({
+                type: "tabPress",
+                target: route.key,
+                canPreventDefault: true,
+              });
+
+              if (!isFocused && !event.defaultPrevented) {
+                navigation.navigate(route.name, route.params);
+              }
+            };
+
+            return (
+              <TextRevealTab
+                key={route.key}
+                tab={tabConfig}
+                isActive={isFocused}
+                onPress={onPress}
+              />
+            );
+          })}
         </View>
       </LinearGradient>
     </View>

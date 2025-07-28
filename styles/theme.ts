@@ -37,7 +37,7 @@ export const darkTheme: Theme = {
     text: '#FFFFFF',
     textSecondary: '#AEAEB2',
     primary: '#FFFFFF',
-    accent: '#007AFF',  // Blue accent
+    accent: '#007AFF',
     border: '#38383A',
     error: '#FF453A',
     success: '#30D158',

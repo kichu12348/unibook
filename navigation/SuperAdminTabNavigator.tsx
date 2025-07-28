@@ -1,19 +1,21 @@
-import React, { useState } from 'react';
-import { View, StyleSheet } from 'react-native';
+import React from 'react';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { SuperAdminTabParamList } from './types';
 import CustomTabNavigator from '../components/CustomTabNavigator';
 import CollegeListTabScreen from '../screens/SuperAdmin/CollegeListTabScreen';
 import ProfileScreen from '../screens/SuperAdmin/ProfileScreen';
 
+const Tab = createBottomTabNavigator<SuperAdminTabParamList>();
+
 const tabs = [
   {
-    name: 'Colleges',
+    name: 'Colleges' as keyof SuperAdminTabParamList,
     label: 'Colleges',
     icon: 'school' as const,
     iconOutline: 'school-outline' as const,
   },
   {
-    name: 'Profile',
+    name: 'Profile' as keyof SuperAdminTabParamList,
     label: 'Profile',
     icon: 'person' as const,
     iconOutline: 'person-outline' as const,
@@ -21,39 +23,28 @@ const tabs = [
 ];
 
 const SuperAdminTabNavigator: React.FC = () => {
-  const [activeTab, setActiveTab] = useState('Colleges');
-
-  const renderActiveScreen = () => {
-    switch (activeTab) {
-      case 'Colleges':
-        return <CollegeListTabScreen />;
-      case 'Profile':
-        return <ProfileScreen />;
-      default:
-        return <CollegeListTabScreen />;
-    }
-  };
-
-  const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-    },
-    content: {
-      flex: 1,
-    },
-  });
-
   return (
-    <View style={styles.container}>
-      <View style={styles.content}>
-        {renderActiveScreen()}
-      </View>
-      <CustomTabNavigator
-        tabs={tabs}
-        activeTab={activeTab}
-        onTabPress={setActiveTab}
+    <Tab.Navigator
+    id={undefined}
+      tabBar={(props) => (
+        <CustomTabNavigator
+          {...props}
+          tabs={tabs}
+        />
+      )}
+      screenOptions={{
+        headerShown: false,
+      }}
+    >
+      <Tab.Screen 
+        name="Colleges" 
+        component={CollegeListTabScreen}
       />
-    </View>
+      <Tab.Screen 
+        name="Profile" 
+        component={ProfileScreen}
+      />
+    </Tab.Navigator>
   );
 };
 

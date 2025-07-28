@@ -3,7 +3,6 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   ScrollView,
   ActivityIndicator,
   RefreshControl,
@@ -15,18 +14,19 @@ import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { SuperAdminStackParamList } from "../../navigation/SuperAdminNavigator";
 import { useTheme } from "../../hooks/useTheme";
+import { useSuperAdminStore } from "../../store/superAdminStore";
 import {
   College,
   CollegeAdmin,
   fetchCollegeDetails,
-  fetchCollegeAdmins,
 } from "../../api/superAdmin";
 import StyledButton from "../../components/StyledButton";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type NavigationProp = NativeStackNavigationProp<
   SuperAdminStackParamList,
-  "CollegeDetails"
+  "CollegeDetails",
+  "collegeName"
 >;
 type RouteProps = RouteProp<SuperAdminStackParamList, "CollegeDetails">;
 
@@ -35,12 +35,13 @@ const CollegeDetailsScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp>();
   const route = useRoute<RouteProps>();
   const { collegeId } = route.params;
+  const { collegeAdmins, getCollegeAdmins, isLoading } = useSuperAdminStore();
 
   const [college, setCollege] = useState<College | null>(null);
-  const [admins, setAdmins] = useState<CollegeAdmin[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const admins = collegeAdmins[collegeId] || [];
 
   useEffect(() => {
     loadCollegeData();
@@ -49,13 +50,12 @@ const CollegeDetailsScreen: React.FC = () => {
   const loadCollegeData = async () => {
     try {
       setError(null);
-      const [collegeData, adminData] = await Promise.all([
+      const [collegeData] = await Promise.all([
         fetchCollegeDetails(collegeId),
-        fetchCollegeAdmins(collegeId),
+        getCollegeAdmins(collegeId),
       ]);
 
       setCollege(collegeData);
-      setAdmins(adminData);
     } catch (error) {
       const errorMessage =
         error instanceof Error
@@ -64,7 +64,6 @@ const CollegeDetailsScreen: React.FC = () => {
       setError(errorMessage);
       console.error("Load college details error:", error);
     } finally {
-      setIsLoading(false);
       setIsRefreshing(false);
     }
   };
@@ -76,6 +75,16 @@ const CollegeDetailsScreen: React.FC = () => {
 
   const handleBack = () => {
     navigation.goBack();
+  };
+
+  const handleAddAdmin = () => {
+    navigation.navigate('CreateCollegeAdmin', { collegeId, collegeName: college?.name });
+  };
+
+  const handleEditCollege = () => {
+    if (college) {
+      navigation.navigate('EditCollege', { college });
+    }
   };
 
   const handleError = () => {
@@ -235,6 +244,45 @@ const CollegeDetailsScreen: React.FC = () => {
       color: theme.colors.textSecondary,
       textAlign: "center",
     },
+    sectionHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 16,
+    },
+    addAdminButton: {
+      backgroundColor: 'transparent',
+      paddingHorizontal: 16,
+      paddingVertical: 10,
+      borderRadius: 12,
+      marginBottom: 12,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'flex-start',
+      borderWidth: 1.5,
+      borderColor: theme.colors.primary,
+      borderStyle: 'dashed',
+    },
+    addAdminButtonText: {
+      color: theme.colors.primary,
+      fontSize: 14,
+      fontWeight: '600',
+    },
+    editButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: 12,
+      paddingVertical: 6,
+      backgroundColor: 'transparent',
+      borderRadius: 8,
+      borderWidth: 1,
+      borderColor: theme.colors.primary,
+    },
+    editButtonText: {
+      color: theme.colors.primary,
+      fontSize: 12,
+      fontWeight: '600',
+    },
   });
 
   const insets = useSafeAreaInsets();
@@ -307,7 +355,21 @@ const CollegeDetailsScreen: React.FC = () => {
       >
         {/* College Information */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>College Information</Text>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>College Information</Text>
+            <TouchableOpacity
+              style={styles.editButton}
+              onPress={handleEditCollege}
+            >
+              <Ionicons 
+                name="pencil" 
+                size={16} 
+                color={theme.colors.primary}
+                style={{ marginRight: 6 }}
+              />
+              <Text style={styles.editButtonText}>Edit</Text>
+            </TouchableOpacity>
+          </View>
 
           <View style={styles.infoRow}>
             <Ionicons
@@ -369,9 +431,24 @@ const CollegeDetailsScreen: React.FC = () => {
 
         {/* College Administrators */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>
-            College Administrators ({admins.length})
-          </Text>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>
+              College Administrators ({admins.length})
+            </Text>
+          </View>
+          
+          <TouchableOpacity
+            style={styles.addAdminButton}
+            onPress={handleAddAdmin}
+          >
+            <Ionicons 
+              name="add-circle-outline" 
+              size={18} 
+              color={theme.colors.primary}
+              style={{ marginRight: 8 }}
+            />
+            <Text style={styles.addAdminButtonText}>Add New Administrator</Text>
+          </TouchableOpacity>
 
           {admins.length > 0 ? (
             admins.map((admin) => (

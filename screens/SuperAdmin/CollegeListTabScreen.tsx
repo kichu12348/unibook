@@ -65,7 +65,8 @@ const CollegeListTabScreen: React.FC = () => {
     });
   };
 
-  const renderCollegeItem = ({ item }: { item: College }) => (
+  const renderCollegeItem = ({ item }: { item: College }) => 
+    (
     <TouchableOpacity
       style={[styles.collegeCard, { borderColor: theme.colors.border }]}
       onPress={() => handleCollegePress(item)}
@@ -94,12 +95,6 @@ const CollegeListTabScreen: React.FC = () => {
       </View>
       
       <View style={styles.collegeDetails}>
-        <View style={styles.detailItem}>
-          <Ionicons name="people-outline" size={16} color={theme.colors.textSecondary} />
-          <Text style={[styles.detailText, { color: theme.colors.textSecondary }]}>
-            0 Admins
-          </Text>
-        </View>
         <View style={styles.detailItem}>
           <Ionicons name="calendar-outline" size={16} color={theme.colors.textSecondary} />
           <Text style={[styles.detailText, { color: theme.colors.textSecondary }]}>

@@ -3,7 +3,6 @@ import {
   TouchableOpacity,
   TouchableOpacityProps,
   Text,
-  StyleSheet,
   ActivityIndicator,
 } from 'react-native';
 import { useTheme } from '../hooks/useTheme';

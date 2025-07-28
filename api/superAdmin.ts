@@ -39,6 +39,18 @@ export interface CreateCollegeData {
   domainName: string;
 }
 
+export interface CreateCollegeAdminData {
+  fullName: string;
+  email: string;
+  password: string;
+}
+
+export interface UpdateCollegeData {
+  name?: string;
+  domainName?: string;
+  hasPaid?: boolean;
+}
+
 // Fetch all colleges
 export const fetchColleges = async (): Promise<College[]> => {
   try {
@@ -154,6 +166,40 @@ export const fetchCollegeAdmins = async (collegeId: string): Promise<CollegeAdmi
     }
     
     throw new Error('Failed to fetch college administrators. Please try again.');
+  }
+};
+
+// Create college administrator
+export const createCollegeAdmin = async (collegeId: string, adminData: CreateCollegeAdminData): Promise<CollegeAdmin> => {
+  try {
+    const api = await createAuthenticatedApi();
+    const response = await api.post(`/sa/colleges/${collegeId}/admins`, adminData);
+    return response.data;
+  } catch (error) {
+    console.error('Error creating college admin:', error);
+    
+    if (axios.isAxiosError(error) && error.response) {
+      throw new Error(error.response.data.message || 'Failed to create college administrator');
+    }
+    
+    throw new Error('Failed to create college administrator. Please try again.');
+  }
+};
+
+// Update college
+export const updateCollege = async (collegeId: string, updateData: UpdateCollegeData): Promise<College> => {
+  try {
+    const api = await createAuthenticatedApi();
+    const response = await api.put(`/sa/colleges/${collegeId}/update`, updateData);
+    return response.data;
+  } catch (error) {
+    console.error('Error updating college:', error);
+    
+    if (axios.isAxiosError(error) && error.response) {
+      throw new Error(error.response.data.message || 'Failed to update college');
+    }
+    
+    throw new Error('Failed to update college. Please try again.');
   }
 };
 
