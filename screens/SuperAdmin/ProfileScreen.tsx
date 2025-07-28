@@ -15,6 +15,7 @@ import StyledButton from "../../components/StyledButton";
 import ThemeSwitch from "../../components/ThemeSwitch";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
+import Footer from "../../components/CommonFooter";
 
 const ProfileScreen: React.FC = () => {
   const theme = useTheme();
@@ -219,7 +220,12 @@ const ProfileScreen: React.FC = () => {
                 </View>
               </View>
 
-              <View style={[styles.profileItem,!user?.approvalStatus && styles.profileItemLast]}>
+              <View
+                style={[
+                  styles.profileItem,
+                  !user?.approvalStatus && styles.profileItemLast,
+                ]}
+              >
                 <View style={styles.profileIcon}>
                   <Ionicons
                     name="briefcase"
@@ -276,6 +282,7 @@ const ProfileScreen: React.FC = () => {
             textStyles={styles.logoutButtonText}
           />
         </View>
+        <Footer />
       </ScrollView>
     </View>
   );

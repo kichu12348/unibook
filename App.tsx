@@ -8,11 +8,28 @@ import { useTheme } from "./hooks/useTheme";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import AppNavigator from "./navigation/AppNavigator";
+import { Inter_600SemiBold, useFonts } from "@expo-google-fonts/inter";
+import * as SplashScreen from "expo-splash-screen";
+import { enableScreens } from "react-native-screens";
+
+enableScreens();
+
+SplashScreen.preventAutoHideAsync();
 
 export default function App() {
-  const { initializeApp } = useAuthStore();
-  const { initializeTheme } = useThemeStore();
+  const initializeApp = useAuthStore((state) => state.initializeApp);
+  const initializeTheme = useThemeStore((state) => state.initializeTheme);
   const theme = useTheme();
+
+  const [fontsLoaded, error] = useFonts({
+    Inter_600SemiBold,
+  });
+
+  useEffect(() => {
+    if (fontsLoaded || error) {
+      SplashScreen.hideAsync();
+    }
+  }, [error, fontsLoaded]);
 
   useEffect(() => {
     const initialize = async () => {
