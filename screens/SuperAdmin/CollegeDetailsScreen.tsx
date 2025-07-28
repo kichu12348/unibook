@@ -78,12 +78,15 @@ const CollegeDetailsScreen: React.FC = () => {
   };
 
   const handleAddAdmin = () => {
-    navigation.navigate('CreateCollegeAdmin', { collegeId, collegeName: college?.name });
+    navigation.navigate("CreateCollegeAdmin", {
+      collegeId,
+      collegeName: college?.name,
+    });
   };
 
   const handleEditCollege = () => {
     if (college) {
-      navigation.navigate('EditCollege', { college });
+      navigation.navigate("EditCollege", { college });
     }
   };
 
@@ -245,35 +248,35 @@ const CollegeDetailsScreen: React.FC = () => {
       textAlign: "center",
     },
     sectionHeader: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
       marginBottom: 16,
     },
     addAdminButton: {
-      backgroundColor: 'transparent',
+      backgroundColor: "transparent",
       paddingHorizontal: 16,
       paddingVertical: 10,
       borderRadius: 12,
       marginBottom: 12,
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'flex-start',
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "flex-start",
       borderWidth: 1.5,
       borderColor: theme.colors.primary,
-      borderStyle: 'dashed',
+      borderStyle: "dashed",
     },
     addAdminButtonText: {
       color: theme.colors.primary,
       fontSize: 14,
-      fontWeight: '600',
+      fontWeight: "600",
     },
     editButton: {
-      flexDirection: 'row',
-      alignItems: 'center',
+      flexDirection: "row",
+      alignItems: "center",
       paddingHorizontal: 12,
       paddingVertical: 6,
-      backgroundColor: 'transparent',
+      backgroundColor: "transparent",
       borderRadius: 8,
       borderWidth: 1,
       borderColor: theme.colors.primary,
@@ -281,7 +284,7 @@ const CollegeDetailsScreen: React.FC = () => {
     editButtonText: {
       color: theme.colors.primary,
       fontSize: 12,
-      fontWeight: '600',
+      fontWeight: "600",
     },
   });
 
@@ -361,9 +364,9 @@ const CollegeDetailsScreen: React.FC = () => {
               style={styles.editButton}
               onPress={handleEditCollege}
             >
-              <Ionicons 
-                name="pencil" 
-                size={16} 
+              <Ionicons
+                name="pencil"
+                size={16}
                 color={theme.colors.primary}
                 style={{ marginRight: 6 }}
               />
@@ -436,14 +439,14 @@ const CollegeDetailsScreen: React.FC = () => {
               College Administrators ({admins.length})
             </Text>
           </View>
-          
+
           <TouchableOpacity
             style={styles.addAdminButton}
             onPress={handleAddAdmin}
           >
-            <Ionicons 
-              name="add-circle-outline" 
-              size={18} 
+            <Ionicons
+              name="add-circle-outline"
+              size={18}
               color={theme.colors.primary}
               style={{ marginRight: 8 }}
             />

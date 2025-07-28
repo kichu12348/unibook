@@ -69,6 +69,7 @@ const CollegeListTabScreen: React.FC = () => {
     <TouchableOpacity
       style={[styles.collegeCard, { borderColor: theme.colors.border }]}
       onPress={() => handleCollegePress(item)}
+      activeOpacity={0.8}
     >
       <View style={styles.collegeHeader}>
         <View style={styles.collegeInfo}>
