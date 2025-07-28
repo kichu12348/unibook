@@ -310,7 +310,7 @@ const CollegeDetailsScreen: React.FC = () => {
           </View>
         </View>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={theme.colors.accent} />
+          <ActivityIndicator size="large" color={theme.colors.primary} />
           <Text style={styles.loadingText}>Loading college details...</Text>
         </View>
       </View>
