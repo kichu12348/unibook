@@ -39,40 +39,6 @@ export const fetchUsers = async (): Promise<User[]> => {
     if (axios.isAxiosError(error) && error.response) {
       throw new Error(error.response.data.message || 'Failed to fetch users');
     }
-    
-    // Mock data for development
-    if (process.env.NODE_ENV === 'development') {
-      return [
-        {
-          id: '1',
-          fullName: 'John Doe',
-          email: 'john.doe@example.edu',
-          role: 'teacher',
-          status: 'pending',
-          createdAt: new Date().toISOString(),
-          collegeId: 'college-1',
-        },
-        {
-          id: '2',
-          fullName: 'Jane Smith',
-          email: 'jane.smith@example.edu',
-          role: 'forum_head',
-          status: 'approved',
-          createdAt: new Date().toISOString(),
-          collegeId: 'college-1',
-        },
-        {
-          id: '3',
-          fullName: 'Mike Johnson',
-          email: 'mike.johnson@example.edu',
-          role: 'teacher',
-          status: 'pending',
-          createdAt: new Date().toISOString(),
-          collegeId: 'college-1',
-        },
-      ];
-    }
-    
     throw new Error('Failed to fetch users. Please try again.');
   }
 };

@@ -59,34 +59,6 @@ export const fetchColleges = async (): Promise<College[]> => {
     return response.data;
   } catch (error) {
     console.error('Error fetching colleges:', error);
-    
-    // Return mock data for development
-    if (__DEV__) {
-      return [
-        {
-          id: '1',
-          name: 'University of California, Berkeley',
-          domainName: 'berkeley.edu',
-          hasPaid: true,
-          createdAt: new Date().toISOString(),
-        },
-        {
-          id: '2',
-          name: 'Stanford University',
-          domainName: 'stanford.edu',
-          hasPaid: false,
-          createdAt: new Date().toISOString(),
-        },
-        {
-          id: '3',
-          name: 'Massachusetts Institute of Technology',
-          domainName: 'mit.edu',
-          hasPaid: true,
-          createdAt: new Date().toISOString(),
-        },
-      ];
-    }
-    
     throw new Error('Failed to fetch colleges. Please try again.');
   }
 };

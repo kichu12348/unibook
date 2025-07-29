@@ -62,18 +62,6 @@ export const fetchForumsByCollege = async (collegeId: string): Promise<Forum[]> 
     return response.data;
   } catch (error) {
     console.error('Error fetching forums:', error);
-    
-    // Return mock data for development if API is not available
-    if (__DEV__) {
-      return [
-        { id: '1', name: 'Computer Science Forum' },
-        { id: '2', name: 'Engineering Forum' },
-        { id: '3', name: 'Arts & Literature Forum' },
-        { id: '4', name: 'Sports & Recreation Forum' },
-        { id: '5', name: 'Student Council Forum' },
-      ];
-    }
-    
     throw new Error('Failed to fetch forums. Please try again.');
   }
 };
