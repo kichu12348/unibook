@@ -104,7 +104,7 @@ const TextRevealTab: React.FC<TextRevealTabProps> = React.memo(
     });
 
     return (
-      <TouchableOpacity onPress={onPress} activeOpacity={0.8}>
+      <TouchableOpacity onPress={onPress} activeOpacity={0.9}>
         <Animated.View style={[styles.tabContainer, animatedContainerStyle]}>
           <Ionicons
             name={isActive ? tab.icon : tab.iconOutline}
