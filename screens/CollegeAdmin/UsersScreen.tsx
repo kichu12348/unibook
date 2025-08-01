@@ -17,6 +17,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { RouteProp, useRoute, useIsFocused } from "@react-navigation/native";
 import { CollegeAdminTabParamList } from "../../navigation/types";
 import StyledButton from "../../components/StyledButton";
+import StyledTextInput from "../../components/StyledTextInput";
+import { useDebounce } from "../../hooks/useDebounce";
 
 type UsersScreenRouteProp = RouteProp<CollegeAdminTabParamList, "Users">;
 
@@ -27,19 +29,34 @@ const UsersScreen: React.FC = () => {
   const isFocused = useIsFocused();
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const { users, isLoading, getUsers, approveUser, rejectUser, deleteUser } =
-    useCollegeAdminStore();
+  // --- SEARCH STATE ---
+  const [searchTerm, setSearchTerm] = useState("");
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
+
+  const {
+    users,
+    isLoading,
+    isSearchingUsers,
+    getUsers,
+    approveUser,
+    rejectUser,
+    deleteUser,
+  } = useCollegeAdminStore();
 
   const filter = route.params?.filter;
 
   useEffect(() => {
+    // This effect handles both initial load and subsequent searches
     if (isFocused) {
-      getUsers();
+      getUsers(debouncedSearchTerm);
     }
-  }, [isFocused]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isFocused, debouncedSearchTerm]);
 
   const handleRefresh = useCallback(async () => {
     setIsRefreshing(true);
+    // Refresh clears the search term
+    setSearchTerm("");
     await getUsers();
     setIsRefreshing(false);
   }, [getUsers]);
@@ -121,7 +138,6 @@ const UsersScreen: React.FC = () => {
         </View>
         <Text style={styles.userEmail}>{item.email}</Text>
         <Text style={styles.userRole}>Role: {item.role.replace("_", " ")}</Text>
-
         {item.approvalStatus === "pending" && (
           <View style={styles.actionsContainer}>
             <StyledButton
@@ -139,7 +155,6 @@ const UsersScreen: React.FC = () => {
             />
           </View>
         )}
-
         {item.approvalStatus !== "pending" && (
           <View style={styles.actionsContainer}>
             <TouchableOpacity
@@ -165,16 +180,9 @@ const UsersScreen: React.FC = () => {
       paddingTop: insets.top + 16,
       paddingBottom: 16,
     },
-    title: {
-      fontSize: 28,
-      fontWeight: "bold",
-      color: theme.colors.text,
-    },
-    subtitle: {
-      fontSize: 16,
-      color: theme.colors.textSecondary,
-      marginTop: 4,
-    },
+    title: { fontSize: 28, fontWeight: "bold", color: theme.colors.text },
+    subtitle: { fontSize: 16, color: theme.colors.textSecondary, marginTop: 4 },
+    searchContainer: { paddingHorizontal: 24, paddingBottom: 8 },
     listContainer: { paddingHorizontal: 24, paddingBottom: insets.bottom + 80 },
     loadingContainer: {
       flex: 1,
@@ -186,6 +194,7 @@ const UsersScreen: React.FC = () => {
       justifyContent: "center",
       alignItems: "center",
       padding: 24,
+      paddingTop: 60,
     },
     emptyText: {
       fontSize: 16,
@@ -219,9 +228,10 @@ const UsersScreen: React.FC = () => {
     },
     statusBadge: {
       borderWidth: 1,
+      borderStyle: "dashed",
       borderRadius: 12,
+      paddingVertical: 4,
       paddingHorizontal: 8,
-      paddingVertical: 2,
     },
     statusText: {
       fontSize: 10,
@@ -234,7 +244,12 @@ const UsersScreen: React.FC = () => {
       marginTop: 16,
       alignItems: "center",
     },
-    actionButton: { minWidth: 80, marginLeft: 8 },
+    actionButton: {
+      minWidth: 80,
+      marginLeft: 8,
+      borderWidth: 1,
+      borderColor: theme.colors.primary,
+    },
     deleteIcon: { padding: 8 },
   });
 
@@ -247,11 +262,28 @@ const UsersScreen: React.FC = () => {
         <Text style={styles.subtitle}>
           {filter === "pending"
             ? "Approve or reject new user requests"
-            : "View and manage all users in your college"}
+            : "View and manage all users"}
         </Text>
       </View>
 
-      {isLoading && users.length === 0 && !isRefreshing ? (
+      <View style={styles.searchContainer}>
+        <StyledTextInput
+          placeholder="Search by user name..."
+          value={searchTerm}
+          onChangeText={setSearchTerm}
+          leftElement={
+            <Ionicons
+              name="search"
+              size={20}
+              color={theme.colors.textSecondary}
+            />
+          }
+        />
+      </View>
+
+      {(isLoading || isSearchingUsers) &&
+      users.length === 0 &&
+      !isRefreshing ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={theme.colors.primary} />
         </View>
@@ -273,9 +305,9 @@ const UsersScreen: React.FC = () => {
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
               <Text style={styles.emptyText}>
-                {filter === "pending"
-                  ? "No pending approvals."
-                  : "No users found."}
+                {debouncedSearchTerm
+                  ? `No users found for "${debouncedSearchTerm}"`
+                  : "No users to display."}
               </Text>
             </View>
           }

@@ -7,6 +7,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Alert,
 } from "react-native";
 import { useTheme } from "../../hooks/useTheme";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -28,7 +29,7 @@ const EditVenueScreen: React.FC = () => {
   const route = useRoute<EditVenueRouteProp>();
   const { venue } = route.params;
 
-  const { updateVenue, isSubmitting } = useCollegeAdminStore();
+  const { updateVenue, isSubmitting, deleteVenue } = useCollegeAdminStore();
 
   const [name, setName] = useState(venue.name);
   const [capacity, setCapacity] = useState(String(venue.capacity));
@@ -37,13 +38,53 @@ const EditVenueScreen: React.FC = () => {
   );
   const [errors, setErrors] = useState({ name: "", capacity: "" });
 
+  const handleDelete = () => {
+    Alert.alert(
+      "Delete Venue",
+      "Are you sure you want to permanently delete this venue?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            const success = await deleteVenue(venue.id);
+            if (success) {
+              navigation.pop(2);
+            }
+          },
+        },
+      ]
+    );
+  };
+
   const validateForm = () => {
-    // ... (Add validation logic similar to CreateVenueScreen) ...
-    return true; // Placeholder
+    const newErrors = { name: "", capacity: "" };
+    let isValid = true;
+
+    if (!name.trim()) {
+      newErrors.name = "Venue name is required";
+      isValid = false;
+    }
+    const capNum = parseInt(capacity, 10);
+    if (!capacity.trim() || isNaN(capNum) || capNum <= 0) {
+      newErrors.capacity = "Please enter a valid positive number for capacity";
+      isValid = false;
+    }
+    //check if details are the same then don't update
+    if (
+      venue.name === name.trim() &&
+      venue.capacity === capNum &&
+      venue.locationDetails === locationDetails.trim()
+    ) {
+      return false;
+    }
+    setErrors(newErrors);
+    return isValid;
   };
 
   const handleSave = async () => {
-    if (!validateForm()) return;
+    if (!validateForm()) return navigation.goBack();
 
     const success = await updateVenue(venue.id, {
       name: name.trim(),
@@ -72,10 +113,7 @@ const EditVenueScreen: React.FC = () => {
     content: { flex: 1 },
     scrollContent: { padding: 24 },
     footer: {
-      padding: 24,
-      paddingBottom: insets.bottom + 24,
-      borderTopWidth: 1,
-      borderColor: theme.colors.border,
+      marginTop: 16,
     },
   });
 
@@ -89,7 +127,7 @@ const EditVenueScreen: React.FC = () => {
           style={styles.backButton}
           onPress={() => navigation.goBack()}
         >
-          <Ionicons name="arrow-back" size={24} color={theme.colors.text} />
+          <Ionicons name="chevron-back" size={24} color={theme.colors.text} />
         </TouchableOpacity>
         <Text style={styles.title}>Edit Venue</Text>
       </View>
@@ -116,14 +154,21 @@ const EditVenueScreen: React.FC = () => {
           onChangeText={setLocationDetails}
           multiline
         />
-      </ScrollView>
-      <View style={styles.footer}>
+        <View style={styles.footer}>
+          <StyledButton
+            title={isSubmitting ? "Saving..." : "Save Changes"}
+            onPress={handleSave}
+            loading={isSubmitting}
+          />
+        </View>
         <StyledButton
-          title={isSubmitting ? "Saving..." : "Save Changes"}
-          onPress={handleSave}
-          loading={isSubmitting}
+          title="Delete Venue"
+          onPress={handleDelete}
+          variant="secondary"
+          style={{ borderColor: theme.colors.error, marginTop: 24 }}
+          textStyles={{ color: theme.colors.error }}
         />
-      </View>
+      </ScrollView>
     </KeyboardAvoidingView>
   );
 };

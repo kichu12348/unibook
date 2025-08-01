@@ -17,7 +17,6 @@ import { RouteProp } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import { ManagementStackParamList } from "../../navigation/ManagementStack";
 import { Forum, fetchForumDetails } from "../../api/collegeAdmin";
-import { useCollegeAdminStore } from "../../store/collegeAdminStore";
 import { TAB_BAR_HEIGHT } from "../../constants/constants";
 
 type NavigationProp = NativeStackNavigationProp<ManagementStackParamList>;

@@ -56,17 +56,11 @@ const DashboardScreen: React.FC = () => {
   };
 
   const handleCreateForum = () => {
-    Alert.alert(
-      "Coming Soon",
-      "Forum creation feature will be available soon."
-    );
+    navigation.navigate("ForumsAndVenues", { screen: "CreateForum" });
   };
 
   const handleCreateVenue = () => {
-    Alert.alert(
-      "Coming Soon",
-      "Venue creation feature will be available soon."
-    );
+    navigation.navigate("ForumsAndVenues", { screen: "CreateVenue" });
   };
 
   const styles = StyleSheet.create({
@@ -157,13 +151,11 @@ const DashboardScreen: React.FC = () => {
     quickActionButton: {
       flex: 1,
       marginHorizontal: 8,
-      borderStyle: "dashed",
     },
     arrowContainer: {
       opacity: 0.6,
     },
   });
-
   const insets = useSafeAreaInsets();
 
   return (
@@ -268,14 +260,14 @@ const DashboardScreen: React.FC = () => {
           <StyledButton
             title="Create Forum"
             onPress={handleCreateForum}
-            style={styles.quickActionButton}
+            style={[styles.quickActionButton, { borderStyle: "dashed" }]}
             variant="secondary"
           />
 
           <StyledButton
             title="Create Venue"
             onPress={handleCreateVenue}
-            style={[styles.quickActionButton, { borderStyle: "solid" }]}
+            style={styles.quickActionButton}
             variant="secondary"
           />
         </View>

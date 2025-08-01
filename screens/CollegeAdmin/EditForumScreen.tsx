@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
+  Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
@@ -29,14 +30,37 @@ const EditForumScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
   const { forum } = route.params;
 
-  const { isCreatingForum, updateForum } = useCollegeAdminStore();
+  const { isCreatingForum, updateForum, deleteForum } = useCollegeAdminStore();
 
   const [name, setName] = useState(forum.name);
   const [description, setDescription] = useState(forum.description);
   const [errors, setErrors] = useState({ name: "", description: "" });
 
+  const handleDelete = () => {
+    Alert.alert(
+      "Delete Forum",
+      "Are you sure you want to permanently delete this forum? This action cannot be undone.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            const success = await deleteForum(forum.id);
+            if (success) {
+              // Navigate back twice to go from Edit -> Details -> List
+              navigation.pop(2);
+            }
+          },
+        },
+      ]
+    );
+  };
+
   const validateForm = () => {
-    const newErrors = { name: "", description: "" };
+    const newErrors = { name: "", description: "" }; //check if all are the same
+    if (name === forum.name && description === forum.description) return false;
+
     let isValid = true;
     if (!name.trim() || name.trim().length < 3) {
       newErrors.name = "Forum name must be at least 3 characters";
@@ -46,6 +70,7 @@ const EditForumScreen: React.FC = () => {
       newErrors.description = "Description must be at least 10 characters";
       isValid = false;
     }
+
     setErrors(newErrors);
     return isValid;
   };
@@ -111,7 +136,7 @@ const EditForumScreen: React.FC = () => {
             onChangeText={setDescription}
             placeholder="Describe the purpose of this forum"
             multiline
-            numberOfLines={4}
+            numberOfLines={10}
             error={errors.description}
           />
           <View style={styles.footer}>
@@ -122,6 +147,13 @@ const EditForumScreen: React.FC = () => {
               disabled={isCreatingForum}
             />
           </View>
+          <StyledButton
+            title="Delete Forum"
+            onPress={handleDelete}
+            variant="secondary"
+            style={{ borderColor: theme.colors.error, marginTop: 24 }}
+            textStyles={{ color: theme.colors.error }}
+          />
         </ScrollView>
       </KeyboardAvoidingView>
     </>

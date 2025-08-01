@@ -68,7 +68,9 @@ const VenueDetailsScreen: React.FC = () => {
     editButton: {
       padding: 8,
       borderRadius: 20,
-      backgroundColor: theme.colors.primary + "1A",
+      borderWidth: 1.5,
+      borderColor: theme.colors.primary,
+      borderStyle: "dashed",
     },
     loadingContainer: {
       flex: 1,
@@ -107,14 +109,22 @@ const VenueDetailsScreen: React.FC = () => {
           style={styles.backButton}
           onPress={() => navigation.goBack()}
         >
-          <Ionicons name="chevron-back" size={24} color={theme.colors.primary} />
+          <Ionicons
+            name="chevron-back"
+            size={24}
+            color={theme.colors.primary}
+          />
         </TouchableOpacity>
         <View style={styles.headerTitleContainer}>
           <Text style={styles.title} numberOfLines={1}>
             {venue?.name}
           </Text>
         </View>
-        <TouchableOpacity style={styles.editButton} onPress={handleEdit}>
+        <TouchableOpacity
+          style={styles.editButton}
+          onPress={handleEdit}
+          activeOpacity={0.7}
+        >
           <Ionicons name="pencil" size={20} color={theme.colors.primary} />
         </TouchableOpacity>
       </View>

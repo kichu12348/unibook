@@ -45,8 +45,19 @@ const ForumsAndVenuesScreen: React.FC = () => {
     if (isFocused) {
       getForums();
       getVenues();
+      setSearchTerm("");
     }
-  }, [isFocused, getForums]);
+  }, [isFocused]);
+
+  useEffect(() => {
+    if (debouncedSearchTerm.trim() === "" || debouncedSearchTerm.length < 3)
+      return;
+    if (activeTab === "forums") {
+      getForums(debouncedSearchTerm);
+    } else {
+      getVenues(debouncedSearchTerm);
+    }
+  }, [debouncedSearchTerm]);
 
   const filteredForums = useMemo(() => {
     if (!debouncedSearchTerm) return forums;
@@ -54,7 +65,7 @@ const ForumsAndVenuesScreen: React.FC = () => {
       forum.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
     );
   }, [forums, debouncedSearchTerm]);
-  
+
   const handleFabPress = () => {
     if (activeTab === "forums") {
       navigation.navigate("CreateForum");

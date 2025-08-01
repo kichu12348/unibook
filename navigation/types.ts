@@ -12,8 +12,8 @@ export type SuperAdminTabParamList = {
 export type CollegeAdminTabParamList = {
   Dashboard: undefined;
   Users: { filter?: 'pending' | 'all' } | undefined;
-  ForumsAndVenues: undefined;
   Profile: undefined;
+  ForumsAndVenues: { screen?: string } | undefined;
 };
 
 export type RootStackParamList = {

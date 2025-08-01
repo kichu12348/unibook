@@ -17,6 +17,8 @@ import {
   createVenue,
   UpdateVenueData,
   updateVenue,
+  deleteForum,
+  deleteVenue,
 } from "../api/collegeAdmin";
 import { Alert } from "react-native";
 
@@ -30,7 +32,7 @@ interface CollegeAdminState {
   isLoadingForums: boolean;
   error: string | null;
   getUsers: (searchTerm?: string) => Promise<void>;
-  getForums: () => Promise<void>;
+  getForums: (searchTerm?: string) => Promise<void>;
   addForum: (forumData: CreateForumData) => Promise<boolean>;
   clearError: () => void;
   approveUser: (userId: string) => Promise<void>;
@@ -44,6 +46,8 @@ interface CollegeAdminState {
   getVenues: (searchTerm?: string) => Promise<void>;
   addVenue: (data: CreateVenueData) => Promise<boolean>;
   updateVenue: (venueId: string, data: UpdateVenueData) => Promise<boolean>;
+  deleteForum: (forumId: string) => Promise<boolean>;
+  deleteVenue: (venueId: string) => Promise<boolean>;
 }
 
 export const useCollegeAdminStore = create<CollegeAdminState>((set, get) => ({
@@ -61,14 +65,12 @@ export const useCollegeAdminStore = create<CollegeAdminState>((set, get) => ({
   isSearchingVenues: false,
 
   getUsers: async (searchTerm?: string) => {
-    // Use different loading state for search vs initial load
     const loadingKey = searchTerm ? "isSearchingUsers" : "isLoading";
 
     set({ [loadingKey]: true, error: null });
     try {
       const users = await fetchUsers(searchTerm);
 
-      // Only calculate pending approval count for initial load (no search term)
       let pendingApprovalCount = get().pendingApprovalCount;
       if (!searchTerm) {
         pendingApprovalCount = users.filter(
@@ -89,10 +91,10 @@ export const useCollegeAdminStore = create<CollegeAdminState>((set, get) => ({
     }
   },
 
-  getForums: async () => {
+  getForums: async (searchTerm) => {
     set({ isLoadingForums: true, error: null });
     try {
-      const forums = await fetchForums();
+      const forums = await fetchForums(searchTerm);
       set({
         forums,
         isLoadingForums: false,
@@ -154,7 +156,7 @@ export const useCollegeAdminStore = create<CollegeAdminState>((set, get) => ({
     }
   },
 
-  rejectUser: async (userId: string) => {
+  rejectUser: async (userId) => {
     set({ isLoading: true, error: null });
     try {
       await rejectUser(userId);
@@ -175,7 +177,7 @@ export const useCollegeAdminStore = create<CollegeAdminState>((set, get) => ({
     }
   },
 
-  deleteUser: async (userId: string) => {
+  deleteUser: async (userId) => {
     set({ isLoading: true, error: null });
     try {
       await deleteUser(userId);
@@ -215,7 +217,7 @@ export const useCollegeAdminStore = create<CollegeAdminState>((set, get) => ({
     }
   },
 
-  getVenues: async (searchTerm?: string) => {
+  getVenues: async (searchTerm) => {
     const loadingKey = searchTerm ? "isSearchingVenues" : "isLoadingVenues";
     set({ [loadingKey]: true, error: null });
     try {
@@ -259,6 +261,44 @@ export const useCollegeAdminStore = create<CollegeAdminState>((set, get) => ({
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "Failed to update venue";
+      set({ error: errorMessage, isSubmitting: false });
+      Alert.alert("Error", errorMessage);
+      return false;
+    }
+  },
+
+  deleteForum: async (forumId) => {
+    set({ isSubmitting: true, error: null }); // Reuse a submitting state
+    try {
+      await deleteForum(forumId);
+      set((state) => ({
+        forums: state.forums.filter((f) => f.id !== forumId),
+        isSubmitting: false,
+      }));
+      Alert.alert("Success", "Forum has been deleted.");
+      return true;
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to delete forum";
+      set({ error: errorMessage, isSubmitting: false });
+      Alert.alert("Error", errorMessage);
+      return false;
+    }
+  },
+
+  deleteVenue: async (venueId) => {
+    set({ isSubmitting: true, error: null }); // Reuse a submitting state again lel
+    try {
+      await deleteVenue(venueId);
+      set((state) => ({
+        venues: state.venues.filter((v) => v.id !== venueId),
+        isSubmitting: false,
+      }));
+      Alert.alert("Success", "Venue has been deleted.");
+      return true;
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to delete venue";
       set({ error: errorMessage, isSubmitting: false });
       Alert.alert("Error", errorMessage);
       return false;
