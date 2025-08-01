@@ -90,7 +90,7 @@ export const loginUser = async (credentials: LoginCredentials): Promise<LoginRes
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
-      throw new Error(error.response.data.message || 'Login failed');
+      throw new Error(error.response.data.error || 'Login failed');
     }
     throw new Error('Network error. Please check your connection.');
   }
@@ -102,7 +102,7 @@ export const registerUser = async (formData: RegisterFormData): Promise<Register
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
-      throw new Error(error.response.data.message || 'Registration failed');
+      throw new Error(error.response.data.error || 'Registration failed');
     }
     throw new Error('Network error. Please check your connection.');
   }
@@ -114,7 +114,7 @@ export const verifyUserOtp = async (data: VerifyOtpData): Promise<VerifyOtpRespo
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
-      throw new Error(error.response.data.message || 'OTP verification failed');
+      throw new Error(error.response.data.error || 'OTP verification failed');
     }
     throw new Error('Network error. Please check your connection.');
   }
@@ -130,7 +130,7 @@ export const fetchMe = async (): Promise<UserProfile> => {
       if (error.response.status === 401) {
         throw new Error('Session expired. Please log in again.');
       }
-      throw new Error(error.response.data.message || 'Failed to fetch user profile');
+      throw new Error(error.response.data.error || 'Failed to fetch user profile');
     }
     throw new Error('Network error. Please check your connection.');
   }

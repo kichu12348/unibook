@@ -204,10 +204,7 @@ const CreateForumScreen: React.FC = () => {
       height: 400,
       marginBottom: 16,
     },
-    footer: {
-      paddingHorizontal: 24,
-      paddingBottom: insets.bottom + 100,
-    },
+    footer: { marginBottom: 30 },
     submitButton: {
       marginTop: 8,
     },
@@ -221,13 +218,13 @@ const CreateForumScreen: React.FC = () => {
           onPress={handleGoBack}
           activeOpacity={0.7}
         >
-          <Ionicons name="arrow-back" size={24} color={theme.colors.text} />
+          <Ionicons name="chevron-back" size={24} color={theme.colors.text} />
         </TouchableOpacity>
 
         <View style={styles.headerTitleContainer}>
           <Text style={styles.title}>Create New Forum</Text>
           <Text style={styles.subtitle}>
-            Set up a new discussion forum for your college
+            Set up a new forum for your college
           </Text>
         </View>
       </View>
@@ -271,6 +268,16 @@ const CreateForumScreen: React.FC = () => {
           </View>
         </View>
 
+        <View style={styles.footer}>
+          <StyledButton
+            title={isCreatingForum ? "Creating Forum..." : "Create Forum"}
+            onPress={handleSubmit}
+            loading={isCreatingForum}
+            disabled={isCreatingForum}
+            style={styles.submitButton}
+          />
+        </View>
+
         {/* Forum Heads Selection */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Assign Forum Heads</Text>
@@ -290,7 +297,7 @@ const CreateForumScreen: React.FC = () => {
               onSearchChange={setSearchTerm}
               isSearching={isSearchingUsers}
               title={null}
-              placeholder="Search approved teachers..."
+              placeholder="Search approved users..."
             />
           </View>
 
@@ -299,16 +306,6 @@ const CreateForumScreen: React.FC = () => {
           ) : null}
         </View>
       </ScrollView>
-
-      <View style={styles.footer}>
-        <StyledButton
-          title={isCreatingForum ? "Creating Forum..." : "Create Forum"}
-          onPress={handleSubmit}
-          loading={isCreatingForum}
-          disabled={isCreatingForum}
-          style={styles.submitButton}
-        />
-      </View>
     </View>
   );
 };

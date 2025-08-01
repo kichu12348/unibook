@@ -1,12 +1,10 @@
-import React, { useState, useEffect } from "react";
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  TouchableOpacity, 
-  ScrollView,
-  FlatList,
-  ActivityIndicator,
+import React, { useState, useEffect, useMemo } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Keyboard,
 } from "react-native";
 import { useTheme } from "../../hooks/useTheme";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -14,8 +12,12 @@ import { useNavigation, useIsFocused } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { ManagementStackParamList } from "../../navigation/ManagementStack";
 import { useCollegeAdminStore } from "../../store/collegeAdminStore";
-import { Forum } from "../../api/collegeAdmin";
-import StyledButton from "../../components/StyledButton";
+import { useDebounce } from "../../hooks/useDebounce";
+import { Ionicons } from "@expo/vector-icons";
+import StyledTextInput from "../../components/StyledTextInput";
+import ForumListScreen from "./ForumListScreen";
+import VenueListScreen from "./VenueListScreen";
+import { TAB_BAR_HEIGHT } from "../../constants/constants";
 
 type NavigationProp = NativeStackNavigationProp<ManagementStackParamList>;
 
@@ -24,41 +26,53 @@ const ForumsAndVenuesScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation<NavigationProp>();
   const isFocused = useIsFocused();
-  const [activeTab, setActiveTab] = useState<'forums' | 'venues'>('forums');
 
-  const { forums, isLoadingForums, getForums } = useCollegeAdminStore();
+  const [activeTab, setActiveTab] = useState<"forums" | "venues">("forums");
+  const [searchTerm, setSearchTerm] = useState("");
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
+
+  const {
+    forums,
+    isLoadingForums,
+    getForums,
+    venues,
+    isSearchingVenues,
+    isLoadingVenues,
+    getVenues,
+  } = useCollegeAdminStore();
 
   useEffect(() => {
     if (isFocused) {
       getForums();
+      getVenues();
     }
   }, [isFocused, getForums]);
 
-  const handleCreateForum = () => {
-    navigation.navigate('CreateForum');
-  };
-
-  const handleCreateVenue = () => {
-    navigation.navigate('CreateVenue');
-  };
-
-  const handleForumPress = (forumId: string) => {
-    navigation.navigate('ForumDetails', { forumId });
+  const filteredForums = useMemo(() => {
+    if (!debouncedSearchTerm) return forums;
+    return forums.filter((forum) =>
+      forum.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
+    );
+  }, [forums, debouncedSearchTerm]);
+  
+  const handleFabPress = () => {
+    if (activeTab === "forums") {
+      navigation.navigate("CreateForum");
+    } else {
+      navigation.navigate("CreateVenue");
+    }
   };
 
   const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: theme.colors.background,
-    },
+    container: { flex: 1, backgroundColor: theme.colors.background },
     header: {
       paddingHorizontal: 24,
-      paddingVertical: 16,
       paddingTop: insets.top + 16,
+      paddingBottom: 16,
     },
     title: {
       fontSize: 28,
-      fontWeight: 'bold',
+      fontWeight: "bold",
       color: theme.colors.text,
       marginBottom: 8,
     },
@@ -68,211 +82,126 @@ const ForumsAndVenuesScreen: React.FC = () => {
       marginBottom: 20,
     },
     tabContainer: {
-      flexDirection: 'row',
+      flexDirection: "row",
+      backgroundColor: theme.colors.surface,
       borderRadius: 12,
       padding: 4,
     },
     tab: {
       flex: 1,
-      paddingVertical: 12,
-      paddingHorizontal: 20,
+      paddingVertical: 10,
       borderRadius: 8,
-      alignItems: 'center',
+      alignItems: "center",
     },
-    activeTab: {
-      backgroundColor: theme.colors.primary,
-    },
+    activeTab: { backgroundColor: theme.colors.primary },
     tabText: {
-      fontSize: 16,
-      fontWeight: '600',
-      color: theme.colors.textSecondary,
-    },
-    activeTabText: {
-      color: theme.colors.background,
-    },
-    content: {
-      flex: 1,
-      padding: 24,
-    },
-    sectionTitle: {
-      fontSize: 20,
-      fontWeight: '600',
-      color: theme.colors.text,
-      marginBottom: 16,
-    },
-    emptyState: {
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
-      paddingVertical: 60,
-    },
-    emptyText: {
-      fontSize: 18,
-      color: theme.colors.textSecondary,
-      textAlign: 'center',
-      marginBottom: 8,
-    },
-    emptySubtext: {
       fontSize: 14,
+      fontWeight: "600",
       color: theme.colors.textSecondary,
-      textAlign: 'center',
-      marginBottom: 24,
     },
-    createButton: {
-      marginTop: 20,
-    },
-    forumCard: {
-      backgroundColor: theme.colors.surface,
-      borderRadius: 12,
-      borderWidth: 1,
-      borderColor: theme.colors.border,
-      padding: 16,
-      marginBottom: 12,
-    },
-    forumName: {
-      fontSize: 18,
-      fontWeight: '600',
-      color: theme.colors.text,
-      marginBottom: 8,
-    },
-    forumDescription: {
-      fontSize: 14,
-      color: theme.colors.textSecondary,
-      lineHeight: 20,
-      marginBottom: 12,
-    },
-    forumHeads: {
-      fontSize: 12,
-      color: theme.colors.primary,
-      fontWeight: '500',
-    },
-    loadingContainer: {
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
-      paddingVertical: 40,
-    },
-    loadingText: {
-      fontSize: 14,
-      color: theme.colors.textSecondary,
-      marginTop: 12,
+    activeTabText: { color: theme.colors.background },
+    content: { flex: 1 },
+    searchContainer: { paddingHorizontal: 24 },
+    fab: {
+      position: "absolute",
+      bottom: TAB_BAR_HEIGHT + insets.bottom + 20,
+      right: 24,
+      width: 56,
+      height: 56,
+      borderRadius: 28,
+      borderWidth: 2,
+      borderColor: theme.colors.primary,
+      borderStyle: "dashed",
+      justifyContent: "center",
+      alignItems: "center",
     },
   });
 
-  const ForumCard: React.FC<{ forum: Forum }> = ({ forum }) => (
-    <TouchableOpacity
-      style={styles.forumCard}
-      onPress={() => handleForumPress(forum.id)}
-      activeOpacity={0.7}
-    >
-      <Text style={styles.forumName}>{forum.name}</Text>
-      <Text style={styles.forumDescription} numberOfLines={3}>
-        {forum.description}
-      </Text>
-      <Text style={styles.forumHeads}>
-        {forum.heads?.length > 0 
-          ? `${forum.heads.length} head${forum.heads.length !== 1 ? 's' : ''} assigned`
-          : 'No heads assigned'
-        }
-      </Text>
-    </TouchableOpacity>
-  );
-
-  const renderForumsTab = () => (
-    <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-      <Text style={styles.sectionTitle}>Forums</Text>
-      
-      {isLoadingForums ? (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={theme.colors.primary} />
-          <Text style={styles.loadingText}>Loading forums...</Text>
-        </View>
-      ) : forums.length > 0 ? (
-        <View>
-          {forums.map((forum) => (
-            <ForumCard key={forum.id} forum={forum} />
-          ))}
-          
-          <StyledButton
-            title="Create New Forum"
-            onPress={handleCreateForum}
-            style={styles.createButton}
-          />
-        </View>
-      ) : (
-        <View style={styles.emptyState}>
-          <Text style={styles.emptyText}>No forums created yet</Text>
-          <Text style={styles.emptySubtext}>
-            Create your first forum to get started with organizing discussions and activities.
-          </Text>
-          
-          <StyledButton
-            title="Create New Forum"
-            onPress={handleCreateForum}
-            style={styles.createButton}
-          />
-        </View>
-      )}
-    </ScrollView>
-  );
-
-  const renderVenuesTab = () => (
-    <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-      <Text style={styles.sectionTitle}>Venues</Text>
-      
-      <View style={styles.emptyState}>
-        <Text style={styles.emptyText}>No venues created yet</Text>
-        <Text style={styles.emptySubtext}>
-          Add venues to help organize events and activities at specific locations.
-        </Text>
-        
-        <StyledButton
-          title="Create New Venue"
-          onPress={handleCreateVenue}
-          style={styles.createButton}
+  const renderContent = () => {
+    if (activeTab === "forums") {
+      return (
+        <ForumListScreen
+          forums={filteredForums}
+          isLoading={isLoadingForums}
+          searchTerm={debouncedSearchTerm}
         />
-      </View>
-    </ScrollView>
-  );
+      );
+    }
+    // Venues Tab
+    return (
+      <VenueListScreen
+        venues={venues}
+        searchTerm={debouncedSearchTerm}
+        isLoading={isLoadingVenues || isSearchingVenues}
+      />
+    );
+  };
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Forums & Venues</Text>
-        <Text style={styles.subtitle}>
-          Manage discussion forums and event venues for your college
-        </Text>
-        
+        <Text style={styles.title}>Management</Text>
+        <Text style={styles.subtitle}>Manage forums and event venues</Text>
         <View style={styles.tabContainer}>
           <TouchableOpacity
-            style={[styles.tab, activeTab === 'forums' && styles.activeTab]}
-            onPress={() => setActiveTab('forums')}
+            style={[styles.tab, activeTab === "forums" && styles.activeTab]}
+            onPress={() => setActiveTab("forums")}
             activeOpacity={0.7}
           >
-            <Text style={[
-              styles.tabText, 
-              activeTab === 'forums' && styles.activeTabText
-            ]}>
+            <Text
+              style={[
+                styles.tabText,
+                activeTab === "forums" && styles.activeTabText,
+              ]}
+            >
               Forums
             </Text>
           </TouchableOpacity>
-          
           <TouchableOpacity
-            style={[styles.tab, activeTab === 'venues' && styles.activeTab]}
-            onPress={() => setActiveTab('venues')}
+            style={[styles.tab, activeTab === "venues" && styles.activeTab]}
+            onPress={() => setActiveTab("venues")}
             activeOpacity={0.7}
           >
-            <Text style={[
-              styles.tabText, 
-              activeTab === 'venues' && styles.activeTabText
-            ]}>
+            <Text
+              style={[
+                styles.tabText,
+                activeTab === "venues" && styles.activeTabText,
+              ]}
+            >
               Venues
             </Text>
           </TouchableOpacity>
         </View>
       </View>
 
-      {activeTab === 'forums' ? renderForumsTab() : renderVenuesTab()}
+      <View style={styles.searchContainer}>
+        <StyledTextInput
+          placeholder={
+            activeTab === "forums" ? "Search forums..." : "Search venues..."
+          }
+          value={searchTerm}
+          onChangeText={setSearchTerm}
+          leftElement={
+            <Ionicons
+              name="search"
+              size={20}
+              color={theme.colors.textSecondary}
+            />
+          }
+        />
+      </View>
+
+      <View style={styles.content} onTouchStart={Keyboard.dismiss}>
+        {renderContent()}
+      </View>
+
+      <TouchableOpacity
+        style={styles.fab}
+        onPress={handleFabPress}
+        activeOpacity={0.8}
+      >
+        <Ionicons name="add" size={28} color={theme.colors.primary} />
+      </TouchableOpacity>
     </View>
   );
 };

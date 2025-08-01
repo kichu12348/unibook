@@ -16,13 +16,7 @@ import Animated, {
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "../hooks/useTheme";
-
-// --- Constants ---
-const TAB_BAR_HEIGHT = 80;
-const TIMING_CONFIG = {
-  duration: 200,
-  easing: Easing.inOut(Easing.ease),
-};
+import { TAB_BAR_HEIGHT, TIMING_CONFIG } from "../constants/constants";
 
 // --- Types ---
 interface TabItem {

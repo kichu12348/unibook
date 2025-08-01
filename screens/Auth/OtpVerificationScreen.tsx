@@ -43,9 +43,9 @@ const OtpVerificationScreen: React.FC = () => {
       setOtpError('OTP is required');
       return false;
     }
-    
-    if (otp.trim().length !== 6) {
-      setOtpError('OTP must be 6 digits');
+
+    if (otp.trim().length !== 4) {
+      setOtpError('OTP must be 4 digits');
       return false;
     }
     
@@ -192,11 +192,11 @@ const OtpVerificationScreen: React.FC = () => {
         <View style={styles.form}>
           <View style={styles.inputContainer}>
             <StyledTextInput
-              placeholder="000000"
+              placeholder="0000"
               value={otp}
               onChangeText={(text) => {
-                // Only allow numeric input and limit to 6 characters
-                const numericText = text.replace(/[^0-9]/g, '').slice(0, 6);
+                // Only allow numeric input and limit to 4 characters
+                const numericText = text.replace(/[^0-9]/g, '').slice(0, 4);
                 setOtp(numericText);
                 if (otpError) {
                   setOtpError(undefined);
@@ -217,7 +217,7 @@ const OtpVerificationScreen: React.FC = () => {
               title="Verify Code"
               onPress={handleVerifyOtp}
               loading={isLoading}
-              disabled={!otp.trim() || otp.length !== 6}
+              disabled={!otp.trim() || otp.length !== 4}
             />
           </View>
         </View>
