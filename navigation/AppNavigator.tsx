@@ -5,6 +5,7 @@ import { useTheme } from "../hooks/useTheme";
 import AuthNavigator from "./AuthNavigator";
 import SuperAdminNavigator from "./SuperAdminNavigator";
 import CollegeAdminNavigator from "./CollegeAdminNavigator";
+import ForumHeadNavigator from './ForumHeadNavigator';
 
 const AppNavigator: React.FC = () => {
   const { isAuthenticated, appIsReady, user } = useAuthStore();
@@ -22,7 +23,7 @@ const AppNavigator: React.FC = () => {
   if (!appIsReady) {
     return (
       <View style={styles.container}>
-        <ActivityIndicator size="large" color={theme.colors.accent} />
+        <ActivityIndicator size="large" color={theme.colors.primary} />
       </View>
     );
   }
@@ -37,6 +38,10 @@ const AppNavigator: React.FC = () => {
 
   if (user && user.role === "college_admin") {
     return <CollegeAdminNavigator />;
+  }
+
+  if (user && user.role === "forum_head") {
+    return <ForumHeadNavigator />;
   }
 
   // Default fallback - should not reach here with proper authentication

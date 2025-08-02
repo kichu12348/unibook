@@ -22,6 +22,15 @@ interface User {
   approvalStatus: string;
   isEmailVerified: boolean;
   createdAt: string;
+  forum_heads?: {
+    forumId: string;
+    isVerified: boolean;
+    forum: { name: string };
+  }[];
+  college?: {
+    id: string;
+    name: string;
+  }
 }
 
 interface AuthState {

@@ -1,12 +1,5 @@
 import React, { useEffect } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  SafeAreaView,
-  Alert,
-  ScrollView,
-} from "react-native";
+import { View, Text, StyleSheet, Alert, ScrollView } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "../../hooks/useTheme";
 import { useAuthStore } from "../../store/authStore";
@@ -14,8 +7,8 @@ import { useThemeStore } from "../../store/themeStore";
 import StyledButton from "../../components/StyledButton";
 import ThemeSwitch from "../../components/ThemeSwitch";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import Footer from "../../components/CommonFooter";
+import { TAB_BAR_HEIGHT } from "../../constants/constants";
 
 const ProfileScreen: React.FC = () => {
   const theme = useTheme();
@@ -172,7 +165,9 @@ const ProfileScreen: React.FC = () => {
       <ScrollView
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
+        contentContainerStyle={{
+          paddingBottom: insets.bottom + 24 + TAB_BAR_HEIGHT,
+        }}
       >
         <View style={styles.content}>
           {/* Header with Avatar */}
@@ -219,7 +214,21 @@ const ProfileScreen: React.FC = () => {
                   <Text style={styles.value}>{user?.email || "N/A"}</Text>
                 </View>
               </View>
-
+              {user?.college && (
+                <View style={styles.profileItem}>
+                  <View style={styles.profileIcon}>
+                    <Ionicons
+                      name="school"
+                      size={20}
+                      color={theme.colors.primary}
+                    />
+                  </View>
+                  <View style={styles.profileInfo}>
+                    <Text style={styles.label}>College</Text>
+                    <Text style={styles.value}>{user.college.name}</Text>
+                  </View>
+                </View>
+              )}
               <View
                 style={[
                   styles.profileItem,
@@ -240,6 +249,27 @@ const ProfileScreen: React.FC = () => {
                   </Text>
                 </View>
               </View>
+              {user?.forum_heads && user.forum_heads.length > 0 && (
+                <View style={styles.profileItem}>
+                  <View style={styles.profileIcon}>
+                    <Ionicons
+                      name="people"
+                      size={20}
+                      color={theme.colors.primary}
+                    />
+                  </View>
+                  <View style={styles.profileInfo}>
+                    <Text style={styles.label}>
+                      Forum{user.forum_heads.length > 1 ? " s" : ""}
+                    </Text>
+                    <Text style={styles.value}>
+                      {user.forum_heads
+                        .map((head) => head.forum.name)
+                        .join(", ")}
+                    </Text>
+                  </View>
+                </View>
+              )}
 
               {user?.approvalStatus && (
                 <View style={[styles.profileItem, styles.profileItemLast]}>
@@ -282,7 +312,7 @@ const ProfileScreen: React.FC = () => {
             textStyles={styles.logoutButtonText}
           />
         </View>
-        <Footer marginTop={20}/>
+        <Footer marginTop={20} />
       </ScrollView>
     </View>
   );
