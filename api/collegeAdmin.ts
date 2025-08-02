@@ -25,6 +25,11 @@ export interface User {
   createdAt: string;
   updatedAt?: string;
   collegeId: string;
+  forum_heads?: {
+    forumId: string;
+    isVerified: boolean;
+    forum: { name: string };
+  }[];
 }
 
 // Event interfaces (for future implementation)
@@ -89,15 +94,15 @@ export const fetchUsers = async (searchTerm?: string): Promise<User[]> => {
     const api = await createAuthenticatedApi();
     const endpoint = searchTerm
       ? `/admin/users/search?search=${encodeURIComponent(searchTerm)}`
-      : '/admin/users';
+      : "/admin/users";
 
     const response = await api.get(endpoint);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
-      throw new Error(error.response.data.message || 'Failed to fetch users');
+      throw new Error(error.response.data.message || "Failed to fetch users");
     }
-    throw new Error('Failed to fetch users. Please try again.');
+    throw new Error("Failed to fetch users. Please try again.");
   }
 };
 
@@ -160,10 +165,11 @@ export const createForum = async (
 };
 
 // Approve a user
-export const approveUser = async (userId: string): Promise<User> => {
+export const approveUser = async (userId: string, forumId?: string): Promise<User> => {
   try {
     const api = await createAuthenticatedApi();
-    const response = await api.put(`/admin/users/${userId}/approve`);
+    // Pass the forumId in the request body
+    const response = await api.put(`/admin/users/${userId}/approve`, { forumId });
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
@@ -174,10 +180,10 @@ export const approveUser = async (userId: string): Promise<User> => {
 };
 
 // Reject a user
-export const rejectUser = async (userId: string): Promise<User> => {
+export const rejectUser = async (userId: string, forumId?: string): Promise<User> => {
   try {
     const api = await createAuthenticatedApi();
-    const response = await api.put(`/admin/users/${userId}/reject`);
+    const response = await api.put(`/admin/users/${userId}/reject`, { forumId });
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
@@ -284,30 +290,34 @@ export const updateVenue = async (
 };
 
 // Delete a forum
-export const deleteForum = async (forumId: string): Promise<{ message: string }> => {
+export const deleteForum = async (
+  forumId: string
+): Promise<{ message: string }> => {
   try {
     const api = await createAuthenticatedApi();
     const response = await api.delete(`/admin/forums/${forumId}`);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
-      throw new Error(error.response.data.message || 'Failed to delete forum');
+      throw new Error(error.response.data.message || "Failed to delete forum");
     }
-    throw new Error('Failed to delete forum. Please try again.');
+    throw new Error("Failed to delete forum. Please try again.");
   }
 };
 
 // Delete a venue
-export const deleteVenue = async (venueId: string): Promise<{ message: string }> => {
+export const deleteVenue = async (
+  venueId: string
+): Promise<{ message: string }> => {
   try {
     const api = await createAuthenticatedApi();
     const response = await api.delete(`/admin/venues/${venueId}`);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
-      throw new Error(error.response.data.message || 'Failed to delete venue');
+      throw new Error(error.response.data.message || "Failed to delete venue");
     }
-    throw new Error('Failed to delete venue. Please try again.');
+    throw new Error("Failed to delete venue. Please try again.");
   }
 };
 

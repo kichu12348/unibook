@@ -35,8 +35,8 @@ interface CollegeAdminState {
   getForums: (searchTerm?: string) => Promise<void>;
   addForum: (forumData: CreateForumData) => Promise<boolean>;
   clearError: () => void;
-  approveUser: (userId: string) => Promise<void>;
-  rejectUser: (userId: string) => Promise<void>;
+  approveUser: (userId: string, forumId?: string) => Promise<void>;
+  rejectUser: (userId: string, forumId?: string) => Promise<void>;
   deleteUser: (userId: string) => Promise<void>;
   updateForum: (forumId: string, data: UpdateForumData) => Promise<boolean>;
   venues: Venue[];
@@ -64,7 +64,7 @@ export const useCollegeAdminStore = create<CollegeAdminState>((set, get) => ({
   isSubmitting: false,
   isSearchingVenues: false,
 
-  getUsers: async (searchTerm?: string) => {
+  getUsers: async (searchTerm) => {
     const loadingKey = searchTerm ? "isSearchingUsers" : "isLoading";
 
     set({ [loadingKey]: true, error: null });
@@ -135,10 +135,10 @@ export const useCollegeAdminStore = create<CollegeAdminState>((set, get) => ({
 
   // Add these inside the create() function in store/collegeAdminStore.ts
 
-  approveUser: async (userId: string) => {
+  approveUser: async (userId, forumId) => {
     set({ isLoading: true, error: null });
     try {
-      const updatedUser = await approveUser(userId);
+      await approveUser(userId, forumId);
       set((state) => ({
         users: state.users.map((user) =>
           user.id === userId ? { ...user, approvalStatus: "approved" } : user
@@ -156,10 +156,10 @@ export const useCollegeAdminStore = create<CollegeAdminState>((set, get) => ({
     }
   },
 
-  rejectUser: async (userId) => {
+  rejectUser: async (userId, forumId) => {
     set({ isLoading: true, error: null });
     try {
-      await rejectUser(userId);
+      await rejectUser(userId,forumId);
       set((state) => ({
         users: state.users.map((user) =>
           user.id === userId ? { ...user, approvalStatus: "rejected" } : user

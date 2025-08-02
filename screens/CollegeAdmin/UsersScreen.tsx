@@ -27,9 +27,8 @@ const UsersScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
   const route = useRoute<UsersScreenRouteProp>();
   const isFocused = useIsFocused();
-  const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // --- SEARCH STATE ---
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
@@ -46,16 +45,92 @@ const UsersScreen: React.FC = () => {
   const filter = route.params?.filter;
 
   useEffect(() => {
-    // This effect handles both initial load and subsequent searches
     if (isFocused) {
       getUsers(debouncedSearchTerm);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isFocused, debouncedSearchTerm]);
 
+  // --- MODIFIED APPROVAL LOGIC ---
+  const handleApprove = (user: User) => {
+    if (user.role === "forum_head") {
+      // Find the specific unverified forum association from the user data
+      const pendingForum = user.forum_heads?.find((fh) => !fh.isVerified);
+
+      if (!pendingForum) {
+        Alert.alert(
+          "Approval Error",
+          "Could not find a pending forum for this user. They may already be approved or their registration is incomplete."
+        );
+        return;
+      }
+
+      const { forumId, forum } = pendingForum;
+      Alert.alert(
+        "Approve Forum Head",
+        `Are you sure you want to approve ${user.fullName} for the "${forum.name}" forum?`,
+        [
+          { text: "Cancel", style: "cancel" },
+          { text: "Approve", onPress: () => approveUser(user.id, forumId) },
+        ]
+      );
+    } else {
+      // For teachers
+      Alert.alert(
+        "Approve User",
+        `Are you sure you want to approve ${user.fullName}?`,
+        [
+          { text: "Cancel", style: "cancel" },
+          { text: "Approve", onPress: () => approveUser(user.id) },
+        ]
+      );
+    }
+  };
+
+  const handleReject = (user: User) => {
+    if (user.role === "forum_head") {
+      const pendingForum = user.forum_heads?.find((fh) => !fh.isVerified);
+
+      if (!pendingForum) {
+        Alert.alert(
+          "Approval Error",
+          "Could not find a pending forum for this user. They may already be approved or their registration is incomplete."
+        );
+        return;
+      }
+
+      const { forumId, forum } = pendingForum;
+      Alert.alert(
+        "Approve Forum Head",
+        `Are you sure you want to approve ${user.fullName} for the "${forum.name}" forum?`,
+        [
+          { text: "Cancel", style: "cancel" },
+          {
+            text: "Reject",
+            onPress: () => rejectUser(user.id, forumId),
+            style: "destructive",
+          },
+        ]
+      );
+    } else {
+      // For teachers
+      Alert.alert(
+        "Approve User",
+        `Are you sure you want to approve ${user.fullName}?`,
+        [
+          { text: "Cancel", style: "cancel" },
+          {
+            text: "Reject",
+            onPress: () => rejectUser(user.id),
+            style: "destructive",
+          },
+        ]
+      );
+    }
+  };
+
   const handleRefresh = useCallback(async () => {
     setIsRefreshing(true);
-    // Refresh clears the search term
     setSearchTerm("");
     await getUsers();
     setIsRefreshing(false);
@@ -68,24 +143,6 @@ const UsersScreen: React.FC = () => {
     return users;
   }, [users, filter]);
 
-  const handleApprove = (userId: string) => {
-    Alert.alert("Approve User", "Are you sure you want to approve this user?", [
-      { text: "Cancel", style: "cancel" },
-      { text: "Approve", onPress: () => approveUser(userId) },
-    ]);
-  };
-
-  const handleReject = (userId: string) => {
-    Alert.alert("Reject User", "Are you sure you want to reject this user?", [
-      { text: "Cancel", style: "cancel" },
-      {
-        text: "Reject",
-        style: "destructive",
-        onPress: () => rejectUser(userId),
-      },
-    ]);
-  };
-
   const handleDelete = (userId: string) => {
     Alert.alert("Delete User", "This action is permanent. Are you sure?", [
       { text: "Cancel", style: "cancel" },
@@ -96,7 +153,6 @@ const UsersScreen: React.FC = () => {
       },
     ]);
   };
-
   const getStatusStyle = (status: string) => {
     switch (status) {
       case "approved":
@@ -142,14 +198,14 @@ const UsersScreen: React.FC = () => {
           <View style={styles.actionsContainer}>
             <StyledButton
               title="Reject"
-              onPress={() => handleReject(item.id)}
+              onPress={() => handleReject(item)}
               variant="secondary"
               size="small"
               style={styles.actionButton}
             />
             <StyledButton
               title="Approve"
-              onPress={() => handleApprove(item.id)}
+              onPress={() => handleApprove(item)}
               size="small"
               style={styles.actionButton}
             />
@@ -228,10 +284,9 @@ const UsersScreen: React.FC = () => {
     },
     statusBadge: {
       borderWidth: 1,
-      borderStyle: "dashed",
       borderRadius: 12,
-      paddingVertical: 4,
       paddingHorizontal: 8,
+      paddingVertical: 2,
     },
     statusText: {
       fontSize: 10,
@@ -244,12 +299,7 @@ const UsersScreen: React.FC = () => {
       marginTop: 16,
       alignItems: "center",
     },
-    actionButton: {
-      minWidth: 80,
-      marginLeft: 8,
-      borderWidth: 1,
-      borderColor: theme.colors.primary,
-    },
+    actionButton: { minWidth: 80, marginLeft: 8 },
     deleteIcon: { padding: 8 },
   });
 
