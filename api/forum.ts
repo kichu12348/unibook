@@ -66,6 +66,7 @@ export interface StaffMember {
   id: string;
   fullName: string;
   assignmentRole: string;
+  status: "pending" | "approved" | "rejected";
 }
 
 export interface EventDetails extends Event {
@@ -222,7 +223,7 @@ export const searchTeachers = async (searchTerm?: string): Promise<Teacher[]> =>
  * Sends a request for a teacher to staff an event.
  * Calls the POST /forums/events/:eventId/staff endpoint.
  */
-export const requestStaffForEvent = async (eventId: string, userId: string, assignmentRole: string = 'Staff'): Promise<{ message: string }> => {
+export const requestStaffForEvent = async (eventId: string, userId: string, assignmentRole: string = 'Staff In Charge'): Promise<{ message: string }> => {
   try {
     const api = await createAuthenticatedApi();
     const response = await api.post(`/forums/events/${eventId}/staff`, { userId, assignmentRole });
@@ -230,6 +231,23 @@ export const requestStaffForEvent = async (eventId: string, userId: string, assi
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
       throw new Error(error.response.data.error || 'Failed to send staff request');
+    }
+    throw new Error('An unexpected error occurred.');
+  }
+};
+
+/**
+ * Removes a staff member from an event.
+ * Calls the DELETE /forums/events/:eventId/staff/:staffUserId endpoint.
+ */
+export const removeStaffFromEvent = async (eventId: string, staffUserId: string): Promise<{ message: string }> => {
+  try {
+    const api = await createAuthenticatedApi();
+    const response = await api.delete(`/forums/events/${eventId}/staff/${staffUserId}`);
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      throw new Error(error.response.data.error || 'Failed to remove staff member');
     }
     throw new Error('An unexpected error occurred.');
   }

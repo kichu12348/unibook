@@ -2,7 +2,6 @@ import { create } from "zustand";
 import {
   User,
   fetchUsers,
-  Forum,
   createForum,
   CreateForumData,
   fetchForums,

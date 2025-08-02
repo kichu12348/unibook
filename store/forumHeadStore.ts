@@ -13,6 +13,7 @@ import {
   Teacher,
   searchTeachers,
   requestStaffForEvent,
+  removeStaffFromEvent,
 } from "../api/forum";
 
 interface ForumHeadState {
@@ -31,8 +32,9 @@ interface ForumHeadState {
     eventData: UpdateEventData
   ) => Promise<boolean>;
   deleteEvent: (eventId: string) => Promise<boolean>;
-  searchTeachers: (searchTerm?: string) => Promise<void>; // Add this
-  requestStaff: (eventId: string, userId: string) => Promise<boolean>; // Add this
+  searchTeachers: (searchTerm?: string) => Promise<void>;
+  requestStaff: (eventId: string, userId: string) => Promise<boolean>;
+  removeStaff: (eventId: string, staffUserId: string) => Promise<boolean>;
   clearError: () => void;
 }
 
@@ -130,29 +132,49 @@ export const useForumHeadStore = create<ForumHeadState>((set, get) => ({
     }
   },
 
-   searchTeachers: async (searchTerm?: string) => {
+  searchTeachers: async (searchTerm?: string) => {
     set({ isSearchingTeachers: true, error: null });
     try {
       const teachers = await searchTeachers(searchTerm);
       set({ teachers, isSearchingTeachers: false });
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to find teachers';
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to find teachers";
       set({ error: errorMessage, isSearchingTeachers: false });
       Alert.alert("Error", errorMessage);
     }
   },
 
   requestStaff: async (eventId: string, userId: string) => {
-    set({ isSubmitting: true, error: null }); 
+    set({ isSubmitting: true, error: null });
     try {
       await requestStaffForEvent(eventId, userId);
       set({ isSubmitting: false });
       Alert.alert("Success", "The request has been sent to the teacher.");
       return true;
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to send request';
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to send request";
       set({ error: errorMessage, isSubmitting: false });
       Alert.alert("Request Failed", errorMessage);
+      return false;
+    }
+  },
+
+  removeStaff: async (eventId: string, staffUserId: string) => {
+    set({ isSubmitting: true, error: null }); 
+    try {
+      await removeStaffFromEvent(eventId, staffUserId);
+      set({ isSubmitting: false });
+      Alert.alert("Success", "Staff member has been removed from the event.");
+      return true;
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Failed to remove staff member";
+      set({ error: errorMessage, isSubmitting: false });
+      Alert.alert("Error", errorMessage);
       return false;
     }
   },

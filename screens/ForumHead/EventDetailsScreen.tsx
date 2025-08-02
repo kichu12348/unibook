@@ -15,11 +15,12 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { ForumHeadStackParamList } from "../../navigation/ForumHeadNavigator";
-import { EventDetails, fetchEventDetails } from "../../api/forum";
+import { EventDetails, fetchEventDetails, StaffMember } from "../../api/forum";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import StyledButton from "../../components/StyledButton";
 import { Image, ImageContentFit } from "expo-image";
+import { useForumHeadStore } from "../../store/forumHeadStore";
 
 type NavigationProp = NativeStackNavigationProp<ForumHeadStackParamList>;
 type RouteProps = RouteProp<ForumHeadStackParamList, "EventDetails">;
@@ -31,8 +32,34 @@ const EventDetailsScreen: React.FC = () => {
   const route = useRoute<RouteProps>();
   const { eventId } = route.params;
 
+  const removeStaff = useForumHeadStore((state) => state.removeStaff);
+
   const [event, setEvent] = useState<EventDetails | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  const handleRemoveStaff = (staffMember: StaffMember) => {
+    Alert.alert(
+      "Remove Staff",
+      `Are you sure you want to remove ${staffMember.fullName} from this event?`,
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Remove",
+          style: "destructive",
+          onPress: async () => {
+            const success = await removeStaff(eventId, staffMember.id);
+            if (success && event) {
+              // For immediate UI feedback, update the local state
+              setEvent({
+                ...event,
+                staff: event.staff.filter((s) => s.id !== staffMember.id),
+              });
+            }
+          },
+        },
+      ]
+    );
+  };
 
   const loadEventDetails = useCallback(async () => {
     try {
@@ -132,6 +159,7 @@ const EventDetailsScreen: React.FC = () => {
       padding: 12,
       flexDirection: "row",
       alignItems: "center",
+      justifyContent: "space-between",
       marginBottom: 8,
       borderWidth: 1,
       borderColor: theme.colors.border,
@@ -152,18 +180,48 @@ const EventDetailsScreen: React.FC = () => {
       color: theme.colors.primary,
     },
     staffSectionHeader: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
       marginTop: 16,
       marginBottom: 16,
     },
     sectionTitle: {
       fontSize: 18,
-      fontWeight: '600',
+      fontWeight: "600",
       color: theme.colors.text,
-    }
+    },
+    staffAddButton: {
+      backgroundColor: theme.colors.background,
+      borderColor: theme.colors.primary,
+      borderWidth: 1.5,
+      borderRadius: 8,
+      borderStyle: "dashed",
+    },
+    staffAddButtonText: {
+      color: theme.colors.primary,
+    },
+    removeButton: {
+      padding: 8,
+      borderWidth: 1,
+      borderColor: theme.colors.error,
+      borderRadius: 8,
+      borderStyle: "dashed",
+    },
   });
+
+  const getColorBasedOnStatus = (status: string) => {
+    switch (status) {
+      case "pending":
+        return theme.colors.warning;
+      case "approved":
+        return theme.colors.success;
+      case "rejected":
+        return theme.colors.error;
+      default:
+        return theme.colors.textSecondary;
+    }
+  };
 
   if (isLoading || !event) {
     return (
@@ -306,19 +364,6 @@ const EventDetailsScreen: React.FC = () => {
           </View>
 
           <View style={{ marginTop: 16 }}>
-            <Text
-              style={[
-                styles.detailLabel,
-                {
-                  fontSize: 18,
-                  fontWeight: "600",
-                  color: theme.colors.text,
-                  marginBottom: 16,
-                },
-              ]}
-            >
-              Event Staff ({event.staff.length})
-            </Text>
             <View style={styles.staffSectionHeader}>
               <Text style={styles.sectionTitle}>
                 Event Staff ({event.staff.length})
@@ -332,21 +377,49 @@ const EventDetailsScreen: React.FC = () => {
                     eventName: event.name,
                   })
                 }
+                style={styles.staffAddButton}
                 variant="secondary"
               />
             </View>
             {event.staff.length > 0 ? (
               event.staff.map((staff) => (
                 <View key={staff.id} style={styles.staffCard}>
-                  <Ionicons
-                    name="person-circle-outline"
-                    size={40}
-                    color={theme.colors.primary}
-                  />
-                  <View style={styles.staffInfo}>
-                    <Text style={styles.staffName}>{staff.fullName}</Text>
-                    <Text style={styles.staffRole}>{staff.assignmentRole}</Text>
+                  <View style={{ flexDirection: "row", alignItems: "center" }}>
+                    <Ionicons
+                      name="person-circle-outline"
+                      size={40}
+                      color={theme.colors.primary}
+                    />
+                    <View style={styles.staffInfo}>
+                      <Text style={styles.staffName}>{staff.fullName}</Text>
+                      <Text style={styles.staffRole}>
+                        {staff.assignmentRole}
+                      </Text>
+                    </View>
                   </View>
+                  <View style={{ flexDirection: "column",gap: 4 }}>
+                    <Text style={styles.staffName}>Status</Text>
+                    <Text
+                      style={[
+                        styles.staffRole,
+                        {
+                          color: getColorBasedOnStatus(staff.status),
+                        },
+                      ]}
+                    >
+                      {staff.status}
+                    </Text>
+                  </View>
+                  <TouchableOpacity
+                    style={styles.removeButton}
+                    onPress={() => handleRemoveStaff(staff)}
+                  >
+                    <Ionicons
+                      name="trash-outline"
+                      size={22}
+                      color={theme.colors.error}
+                    />
+                  </TouchableOpacity>
                 </View>
               ))
             ) : (
