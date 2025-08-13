@@ -33,6 +33,9 @@ const EventDetailsScreen: React.FC = () => {
   const { eventId } = route.params;
 
   const removeStaff = useForumHeadStore((state) => state.removeStaff);
+  const removeCollaborator = useForumHeadStore(
+    (state) => state.removeCollaborator
+  );
 
   const [event, setEvent] = useState<EventDetails | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -55,6 +58,24 @@ const EventDetailsScreen: React.FC = () => {
                 staff: event.staff.filter((s) => s.id !== staffMember.id),
               });
             }
+          },
+        },
+      ]
+    );
+  };
+
+  const handleRemoveCollaborator = (forum: any) => {
+    Alert.alert(
+      "Remove Collaborator",
+      `Are you sure you want to remove ${forum.name}?`,
+      [
+        { text: "Cancel" },
+        {
+          text: "Remove",
+          style: "destructive",
+          onPress: async () => {
+            const success = await removeCollaborator(eventId, forum.id);
+            if (success) loadEventDetails();
           },
         },
       ]
@@ -397,7 +418,7 @@ const EventDetailsScreen: React.FC = () => {
                       </Text>
                     </View>
                   </View>
-                  <View style={{ flexDirection: "column",gap: 4 }}>
+                  <View style={{ flexDirection: "column", gap: 4 }}>
                     <Text style={styles.staffName}>Status</Text>
                     <Text
                       style={[
@@ -424,6 +445,54 @@ const EventDetailsScreen: React.FC = () => {
               ))
             ) : (
               <Text style={styles.detailValue}>No staff assigned yet.</Text>
+            )}
+          </View>
+
+          <View style={{ marginTop: 16 }}>
+            <View style={styles.staffSectionHeader}>
+              <Text style={styles.sectionTitle}>
+                Collaborators ({event.collaboratingForums.length})
+              </Text>
+              <StyledButton
+                title="Add Collaborator"
+                size="small"
+                onPress={() =>
+                  navigation.navigate("ManageCollaborators", {
+                    eventId: event.id,
+                    eventName: event.name,
+                  })
+                }
+                style={styles.staffAddButton}
+                variant="secondary"
+              />
+            </View>
+            {event.collaboratingForums.length > 0 ? (
+              event.collaboratingForums.map((forum) => (
+                <View key={forum.id} style={styles.staffCard}>
+                  <View style={{ flexDirection: "row", alignItems: "center" }}>
+                    <Ionicons
+                      name="business-outline"
+                      size={40}
+                      color={theme.colors.primary}
+                    />
+                    <View style={styles.staffInfo}>
+                      <Text style={styles.staffName}>{forum.name}</Text>
+                    </View>
+                  </View>
+                  <TouchableOpacity
+                    style={styles.removeButton}
+                    onPress={() => handleRemoveCollaborator(forum)}
+                  >
+                    <Ionicons
+                      name="trash-outline"
+                      size={22}
+                      color={theme.colors.error}
+                    />
+                  </TouchableOpacity>
+                </View>
+              ))
+            ) : (
+              <Text style={styles.detailValue}>No collaborators yet.</Text>
             )}
           </View>
 

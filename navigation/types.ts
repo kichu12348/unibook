@@ -32,6 +32,7 @@ export interface EventFormData {
 
 export type ForumHeadTabParamList = {
   Events: undefined;
+  Calendar: undefined;
   PeerApprovals: undefined;
   Profile: undefined;
   CreateEvent: undefined;
@@ -47,4 +48,11 @@ export type RootStackParamList = {
   SuperAdmin: undefined;
   CollegeAdmin: undefined;
   ForumHead: undefined;
+};
+
+
+export type TeacherStackParamList = {
+    TeacherTabs: undefined;
+    MyEvents: undefined;
+    EventDetails: { eventId: string };
 };

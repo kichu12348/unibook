@@ -4,6 +4,8 @@ import { ForumHeadTabParamList } from './types';
 import CustomTabNavigator from '../components/CustomTabNavigator';
 import ProfileScreen from '../screens/SuperAdmin/ProfileScreen';
 import EventsScreen from '../screens/ForumHead/EventsScreen';
+import CalendarScreen from '../screens/ForumHead/CalendarScreen';
+import PeerApprovalsScreen from '../screens/ForumHead/PeerApprovalsScreen';
 
 const Tab = createBottomTabNavigator<ForumHeadTabParamList>();
 
@@ -13,6 +15,12 @@ const tabs = [
     label: 'Events',
     icon: 'calendar' as const,
     iconOutline: 'calendar-outline' as const,
+  },
+  {
+    name: 'Calendar' as const,
+    label: 'Calendar',
+    icon: 'calendar-number' as const,
+    iconOutline: 'calendar-number-outline' as const,
   },
   {
     name: 'PeerApprovals' as const,
@@ -36,8 +44,8 @@ const ForumHeadTabNavigator: React.FC = () => {
       screenOptions={{ headerShown: false }}
     >
       <Tab.Screen name="Events" component={EventsScreen} />
-      {/* Placeholder for PeerApprovals screen */}
-      {/* <Tab.Screen name="PeerApprovals" component={() => <></>} /> */}
+      <Tab.Screen name="Calendar" component={CalendarScreen} />
+      <Tab.Screen name="PeerApprovals" component={PeerApprovalsScreen} />
       <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>
   );

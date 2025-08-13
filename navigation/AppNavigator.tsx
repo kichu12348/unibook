@@ -6,6 +6,7 @@ import AuthNavigator from "./AuthNavigator";
 import SuperAdminNavigator from "./SuperAdminNavigator";
 import CollegeAdminNavigator from "./CollegeAdminNavigator";
 import ForumHeadNavigator from './ForumHeadNavigator';
+import TeacherNavigator from './TeacherNavigator';
 
 const AppNavigator: React.FC = () => {
   const { isAuthenticated, appIsReady, user } = useAuthStore();
@@ -42,6 +43,10 @@ const AppNavigator: React.FC = () => {
 
   if (user && user.role === "forum_head") {
     return <ForumHeadNavigator />;
+  }
+
+  if (user && user.role === "teacher") {
+    return <TeacherNavigator />;
   }
 
   // Default fallback - should not reach here with proper authentication
