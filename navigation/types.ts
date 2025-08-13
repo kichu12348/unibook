@@ -1,4 +1,5 @@
 import { EventDetails } from "../api/forum";
+import { AcceptedEvent, PendingRequest } from '../api/teacher';
 
 export type AuthStackParamList = {
   Login: undefined;
@@ -43,9 +44,24 @@ export type ForumHeadTabParamList = {
   ManageStaff: { eventId: string; eventName: string };
 };
 
+export type TeacherTabParamList = {
+  PendingRequests: undefined;
+  Schedule: undefined;
+  Profile: undefined;
+  EventDetails: { assignmentId: string; eventName: string };
+};
+
+export type StudentTabParamList = {
+  Events: undefined;
+  Profile: undefined;
+  EventDetails: { eventId: string; eventName: string };
+};
+
 export type RootStackParamList = {
   Auth: undefined;
   SuperAdmin: undefined;
   CollegeAdmin: undefined;
   ForumHead: undefined;
+  Teacher: undefined;
+  Student: undefined;
 };

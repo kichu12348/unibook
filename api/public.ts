@@ -87,6 +87,7 @@ export interface ForumSearchResult {
   };
 }
 
+
 // Register user
 export const registerUser = async (
   formData: RegisterFormData
