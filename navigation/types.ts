@@ -49,10 +49,3 @@ export type RootStackParamList = {
   CollegeAdmin: undefined;
   ForumHead: undefined;
 };
-
-
-export type TeacherStackParamList = {
-    TeacherTabs: undefined;
-    MyEvents: undefined;
-    EventDetails: { eventId: string };
-};
