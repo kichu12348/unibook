@@ -4,7 +4,7 @@ import { TeacherTabParamList } from '../types';
 import CustomTabNavigator from '../../components/CustomTabNavigator';
 import PendingRequestsScreen from '../../screens/Teacher/PendingRequestsScreen';
 import ScheduleScreen from '../../screens/Teacher/ScheduleScreen';
-import ProfileScreen from '../../screens/SuperAdmin/ProfileScreen';
+import ProfileScreen from '../../screens/Common/ProfileScreen';
 
 const Tab = createBottomTabNavigator<TeacherTabParamList>();
 

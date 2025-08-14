@@ -10,6 +10,7 @@ import AppNavigator from "./navigation/AppNavigator";
 import { Inter_600SemiBold, useFonts } from "@expo-google-fonts/inter";
 import * as SplashScreen from "expo-splash-screen";
 import * as SystemUi from "expo-system-ui";
+import * as Updates from "expo-updates";
 import { enableScreens } from "react-native-screens";
 
 enableScreens();
@@ -26,6 +27,19 @@ export default function App() {
     Inter_600SemiBold,
   });
 
+  const checkForUpdates = async () => {
+    if (__DEV__) return;
+    try {
+      const update = await Updates.checkForUpdateAsync();
+      if (update.isAvailable) {
+        await Updates.fetchUpdateAsync();
+        await Updates.reloadAsync();
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   useEffect(() => {
     if ((fontsLoaded || error) && !isFontsLoaded) {
       setIsFontsLoaded(true);
@@ -34,6 +48,7 @@ export default function App() {
 
   useEffect(() => {
     const initialize = async () => {
+      await checkForUpdates();
       await initializeApp();
       await initializeTheme(SystemUi.setBackgroundColorAsync);
     };
