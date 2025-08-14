@@ -18,6 +18,7 @@ import StyledTextInput from "../../components/StyledTextInput";
 import UserMultiSelect from "../../components/UserMultiSelect";
 import { useCollegeAdminStore } from "../../store/collegeAdminStore";
 import { useDebounce } from "../../hooks/useDebounce";
+import { TAB_BAR_HEIGHT } from "../../constants/constants";
 
 type NavigationProp = NativeStackNavigationProp<ManagementStackParamList>;
 
@@ -181,6 +182,7 @@ const CreateForumScreen: React.FC = () => {
     },
     scrollContent: {
       padding: 24,
+      paddingBottom: insets.bottom + 34 + TAB_BAR_HEIGHT,
     },
     section: {
       marginBottom: 24,

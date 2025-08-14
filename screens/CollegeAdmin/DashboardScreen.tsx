@@ -254,7 +254,7 @@ const DashboardScreen: React.FC = () => {
         </View>
 
         {/* Quick Actions */}
-        <Text style={styles.sectionTitle}>Quick Actions</Text>
+        {/* <Text style={styles.sectionTitle}>Quick Actions</Text>
 
         <View style={styles.quickActionsGrid}>
           <StyledButton
@@ -270,7 +270,7 @@ const DashboardScreen: React.FC = () => {
             style={styles.quickActionButton}
             variant="secondary"
           />
-        </View>
+        </View> */}
         <Footer />
       </ScrollView>
     </View>

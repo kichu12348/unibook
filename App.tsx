@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { StatusBar } from "expo-status-bar";
+import { StatusBar } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { useAuthStore } from "./store/authStore";
 import { useThemeStore } from "./store/themeStore";
@@ -60,8 +60,9 @@ export default function App() {
       <SafeAreaProvider>
         <NavigationContainer>
           <StatusBar
-            style={theme.colors.background === "#FFFFFF" ? "dark" : "light"}
-            backgroundColor={theme.colors.background}
+            barStyle="light-content"
+            translucent
+            backgroundColor="transparent"
           />
           <AppNavigator />
         </NavigationContainer>

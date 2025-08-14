@@ -16,11 +16,15 @@ const AnimatedFontAwesome6 = Animated.createAnimatedComponent(
   FontAwesome6
 ) as React.ComponentType<typeof FontAwesome6>;
 
-const AnimatedIonicons = Animated.createAnimatedComponent(
-  Ionicons
-) as any; 
+const AnimatedIonicons = Animated.createAnimatedComponent(Ionicons) as any;
 
-const Footer = ({ marginTop = 80 }: { marginTop?: number }) => {
+const Footer = ({
+  marginTop = 80,
+  fontSize = 20,
+}: {
+  marginTop?: number;
+  fontSize?: number;
+}) => {
   const { colors } = useThemeStore((s) => s.currentTheme);
   const glow = useSharedValue(1);
   const [animationRunning, setAnimationRunning] = React.useState(false);
@@ -57,7 +61,10 @@ const Footer = ({ marginTop = 80 }: { marginTop?: number }) => {
       3,
       true,
       () => {
-        scale.value = withTiming(1, { duration: 300, easing: Easing.inOut(Easing.ease) });
+        scale.value = withTiming(1, {
+          duration: 300,
+          easing: Easing.inOut(Easing.ease),
+        });
         runOnJS(setIsHeartPressed)(false);
       }
     );
@@ -83,7 +90,7 @@ const Footer = ({ marginTop = 80 }: { marginTop?: number }) => {
     },
     text: {
       color: colors.textSecondary,
-      fontSize: 20,
+      fontSize: fontSize,
       fontFamily: "Inter_600SemiBold",
       opacity: 0.5,
     },
@@ -107,7 +114,7 @@ const Footer = ({ marginTop = 80 }: { marginTop?: number }) => {
           <Text style={styles.text}>Powered by IEDC Bootcamp CEC </Text>
           <AnimatedFontAwesome6
             name="bolt-lightning"
-            size={16}
+            size={fontSize - 4}
             color={animationRunning ? "#FFD700" : colors.textSecondary}
             style={glowingStyle}
           />

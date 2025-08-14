@@ -163,7 +163,13 @@ const EventsScreen: React.FC = () => {
           contentContainerStyle={styles.listContainer}
           showsVerticalScrollIndicator={false}
           refreshControl={
-            <RefreshControl refreshing={isLoading} onRefresh={getEvents} />
+            <RefreshControl
+              refreshing={isLoading}
+              onRefresh={getEvents}
+              colors={[theme.colors.primary]}
+              tintColor={theme.colors.primary}
+              progressBackgroundColor={theme.colors.background}
+            />
           }
           ListEmptyComponent={
             <View style={styles.emptyContainer}>

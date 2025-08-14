@@ -3,7 +3,6 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   FlatList,
   TouchableOpacity,
   RefreshControl,
@@ -181,11 +180,7 @@ const CollegeListTabScreen: React.FC = () => {
       borderWidth: 1,
       padding: 16,
       marginBottom: 12,
-      elevation: 2,
-      shadowColor: "#000",
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.1,
-      shadowRadius: 4,
+      backgroundColor: theme.colors.surface,
     },
     collegeHeader: {
       flexDirection: "row",
@@ -290,7 +285,7 @@ const CollegeListTabScreen: React.FC = () => {
             />
           }
           showsVerticalScrollIndicator={false}
-          ListFooterComponent={<Footer />}
+          ListFooterComponent={<Footer fontSize={18} />}
         />
       </View>
     </View>
