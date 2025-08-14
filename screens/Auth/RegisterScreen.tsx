@@ -126,8 +126,8 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) => {
   // Handle auth errors
   useEffect(() => {
     if (error) {
-      Alert.alert('Registration Failed', error, [
-        { text: 'OK', onPress: clearError }
+      Alert.alert("Registration Failed", error, [
+        { text: "OK", onPress: clearError },
       ]);
     }
   }, [error]);
@@ -215,8 +215,10 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({ navigation }) => {
 
     const success = await register(formData);
     if (success) {
-      // Navigate to OTP verification screen
-      navigation.navigate("OtpVerification", { email: email.trim().toLowerCase() });
+      navigation.navigate("OtpVerification", {
+        email: email.trim().toLowerCase(),
+        fullName: fullName.trim(),
+      });
     }
   };
 

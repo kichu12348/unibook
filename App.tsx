@@ -1,5 +1,4 @@
 import React, { useEffect } from "react";
-import "react-native-gesture-handler";
 import { StatusBar } from "expo-status-bar";
 import { NavigationContainer } from "@react-navigation/native";
 import { useAuthStore } from "./store/authStore";
@@ -10,6 +9,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import AppNavigator from "./navigation/AppNavigator";
 import { Inter_600SemiBold, useFonts } from "@expo-google-fonts/inter";
 import * as SplashScreen from "expo-splash-screen";
+import * as SystemUi from "expo-system-ui";
 import { enableScreens } from "react-native-screens";
 
 enableScreens();
@@ -20,23 +20,24 @@ export default function App() {
   const initializeApp = useAuthStore((state) => state.initializeApp);
   const initializeTheme = useThemeStore((state) => state.initializeTheme);
   const theme = useTheme();
+  const [isFontsLoaded, setIsFontsLoaded] = React.useState(false);
 
   const [fontsLoaded, error] = useFonts({
     Inter_600SemiBold,
   });
 
   useEffect(() => {
-    if (fontsLoaded || error) {
-      SplashScreen.hideAsync();
+    if ((fontsLoaded || error) && !isFontsLoaded) {
+      setIsFontsLoaded(true);
     }
   }, [error, fontsLoaded]);
 
   useEffect(() => {
     const initialize = async () => {
-      await initializeTheme();
       await initializeApp();
+      await initializeTheme(SystemUi.setBackgroundColorAsync);
     };
-    initialize();
+    initialize().then(SplashScreen.hideAsync);
   }, [initializeApp, initializeTheme]);
 
   return (

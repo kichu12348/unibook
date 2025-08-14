@@ -1,18 +1,5 @@
 import axios from "axios";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-
-// Create authenticated axios instance for Forum Head
-const createAuthenticatedApi = async () => {
-  const token = await AsyncStorage.getItem("auth_token");
-  return axios.create({
-    baseURL: process.env.EXPO_PUBLIC_API_URL || "http://localhost:3000/api/v1",
-    timeout: 10000,
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: token ? `Bearer ${token}` : "",
-    },
-  });
-};
+import { authenticatedApi } from "./auth";
 
 export interface Venue {
   id: string;
@@ -109,8 +96,7 @@ export interface PendingHead {
  */
 export const fetchEvents = async (): Promise<Event[]> => {
   try {
-    const api = await createAuthenticatedApi();
-    const response = await api.get("/forums/events");
+    const response = await authenticatedApi.get("/forums/events");
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
@@ -126,8 +112,7 @@ export const fetchEvents = async (): Promise<Event[]> => {
  */
 export const fetchVenues = async (): Promise<Venue[]> => {
   try {
-    const api = await createAuthenticatedApi();
-    const response = await api.get("/forums/venues");
+    const response = await authenticatedApi.get("/forums/venues");
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
@@ -146,8 +131,7 @@ export const createEvent = async (
   eventData: CreateEventData
 ): Promise<Event> => {
   try {
-    const api = await createAuthenticatedApi();
-    const response = await api.post("/forums/events", eventData);
+    const response = await authenticatedApi.post("/forums/events", eventData);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
@@ -166,8 +150,7 @@ export const fetchEventDetails = async (
   eventId: string
 ): Promise<EventDetails> => {
   try {
-    const api = await createAuthenticatedApi();
-    const response = await api.get(`/forums/events/${eventId}`);
+    const response = await authenticatedApi.get(`/forums/events/${eventId}`);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
@@ -188,8 +171,7 @@ export const updateEvent = async (
   eventData: UpdateEventData
 ): Promise<Event> => {
   try {
-    const api = await createAuthenticatedApi();
-    const response = await api.put(`/forums/events/${eventId}`, eventData);
+    const response = await authenticatedApi.put(`/forums/events/${eventId}`, eventData);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
@@ -207,8 +189,7 @@ export const deleteEvent = async (
   eventId: string
 ): Promise<{ message: string }> => {
   try {
-    const api = await createAuthenticatedApi();
-    const response = await api.delete(`/forums/events/${eventId}`);
+    const response = await authenticatedApi.delete(`/forums/events/${eventId}`);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
@@ -226,11 +207,10 @@ export const searchTeachers = async (
   searchTerm?: string
 ): Promise<Teacher[]> => {
   try {
-    const api = await createAuthenticatedApi();
     const endpoint = searchTerm
       ? `/forums/users/teachers?search=${encodeURIComponent(searchTerm)}`
       : "/forums/users/teachers";
-    const response = await api.get(endpoint);
+    const response = await authenticatedApi.get(endpoint);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
@@ -254,8 +234,7 @@ export const requestStaffForEvent = async (
   assignmentRole: string = "Staff In Charge"
 ): Promise<{ message: string }> => {
   try {
-    const api = await createAuthenticatedApi();
-    const response = await api.post(`/forums/events/${eventId}/staff`, {
+    const response = await authenticatedApi.post(`/forums/events/${eventId}/staff`, {
       userId,
       assignmentRole,
     });
@@ -279,8 +258,7 @@ export const removeStaffFromEvent = async (
   staffUserId: string
 ): Promise<{ message: string }> => {
   try {
-    const api = await createAuthenticatedApi();
-    const response = await api.delete(
+    const response = await authenticatedApi.delete(
       `/forums/events/${eventId}/staff/${staffUserId}`
     );
     return response.data;
@@ -298,16 +276,14 @@ export const requestCollaboration = async (
   eventId: string,
   collaboratingForumId: string
 ): Promise<any> => {
-  const api = await createAuthenticatedApi();
-  const response = await api.post(`/forums/events/${eventId}/collaborators`, {
+  const response = await authenticatedApi.post(`/forums/events/${eventId}/collaborators`, {
     collaboratingForumId,
   });
   return response.data;
 };
 
 export const fetchPendingCollaborations = async (): Promise<any[]> => {
-  const api = await createAuthenticatedApi();
-  const response = await api.get("/forums/collaborations/pending");
+  const response = await authenticatedApi.get("/forums/collaborations/pending");
   return response.data;
 };
 
@@ -315,8 +291,7 @@ export const respondToCollaboration = async (
   collaborationId: string,
   status: "accepted" | "rejected"
 ): Promise<any> => {
-  const api = await createAuthenticatedApi();
-  const response = await api.put(
+  const response = await authenticatedApi.put(
     `/forums/collaborations/${collaborationId}/respond`,
     { status }
   );
@@ -327,8 +302,7 @@ export const removeCollaborator = async (
   eventId: string,
   collaboratorForumId: string
 ): Promise<{ message: string }> => {
-  const api = await createAuthenticatedApi();
-  const response = await api.delete(
+  const response = await authenticatedApi.delete(
     `/forums/events/${eventId}/collaborators/${collaboratorForumId}`
   );
   return response.data;
@@ -341,8 +315,7 @@ export const removeCollaborator = async (
  */
 export const fetchYearlyEventActivity = async (year: number): Promise<EventActivity[]> => {
   try {
-    const api = await createAuthenticatedApi();
-    const response = await api.get(`/forums/events/yearly-activity?year=${year}`);
+    const response = await authenticatedApi.get(`/forums/events/yearly-activity?year=${year}`);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
@@ -359,8 +332,7 @@ export const fetchYearlyEventActivity = async (year: number): Promise<EventActiv
  */
 export const fetchEventsByMonth = async (year: number, month: number): Promise<Event[]> => {
   try {
-    const api = await createAuthenticatedApi();
-    const response = await api.get(`/forums/events/by-month?year=${year}&month=${month}`);
+    const response = await authenticatedApi.get(`/forums/events/by-month?year=${year}&month=${month}`);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
@@ -377,8 +349,7 @@ export const fetchEventsByMonth = async (year: number, month: number): Promise<E
  */
 export const fetchPendingForumHeads = async (): Promise<PendingHead[]> => {
   try {
-    const api = await createAuthenticatedApi();
-    const response = await api.get("/forums/heads/pending");
+    const response = await authenticatedApi.get("/forums/heads/pending");
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
@@ -394,8 +365,7 @@ export const fetchPendingForumHeads = async (): Promise<PendingHead[]> => {
  */
 export const approvePendingForumHead = async (userId: string): Promise<any> => {
   try {
-    const api = await createAuthenticatedApi();
-    const response = await api.post(`/forums/heads/${userId}/approve`);
+    const response = await authenticatedApi.post(`/forums/heads/${userId}/approve`);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
@@ -411,8 +381,7 @@ export const approvePendingForumHead = async (userId: string): Promise<any> => {
  */
 export const rejectPendingForumHead = async (userId: string): Promise<any> => {
   try {
-    const api = await createAuthenticatedApi();
-    const response = await api.post(`/forums/heads/${userId}/reject`);
+    const response = await authenticatedApi.post(`/forums/heads/${userId}/reject`);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {

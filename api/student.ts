@@ -1,19 +1,6 @@
 import axios from "axios";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { authenticatedApi } from "./auth";
 import { ImageContentFit } from "expo-image";
-
-// Create authenticated axios instance
-const createAuthenticatedApi = async () => {
-  const token = await AsyncStorage.getItem("auth_token");
-  return axios.create({
-    baseURL: process.env.EXPO_PUBLIC_API_URL,
-    timeout: 10000,
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: token ? `Bearer ${token}` : "",
-    },
-  });
-};
 
 // --- Interfaces ---
 export interface StaffMember {
@@ -52,8 +39,7 @@ export interface Event {
  */
 export const fetchEvents = async (): Promise<Event[]> => {
   try {
-    const api = await createAuthenticatedApi();
-    const response = await api.get("/public/events");
+    const response = await authenticatedApi.get("/public/events");
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
@@ -69,8 +55,7 @@ export const fetchEvents = async (): Promise<Event[]> => {
  */
 export const fetchEventById = async (eventId: string): Promise<Event> => {
   try {
-    const api = await createAuthenticatedApi();
-    const response = await api.get(`/public/events/${eventId}`);
+    const response = await authenticatedApi.get(`/public/events/${eventId}`);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {

@@ -1,19 +1,6 @@
 import axios from "axios";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { authenticatedApi } from "./auth";
 
-// Create authenticated axios instance for College Admin
-const createAuthenticatedApi = async () => {
-  const token = await AsyncStorage.getItem("auth_token");
-
-  return axios.create({
-    baseURL: process.env.EXPO_PUBLIC_API_URL || "http://localhost:3000/api/v1",
-    timeout: 10000,
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: token ? `Bearer ${token}` : "",
-    },
-  });
-};
 
 // User interfaces
 export interface User {
@@ -91,12 +78,11 @@ export interface UpdateVenueData {
 // Fetch all users in the admin's college
 export const fetchUsers = async (searchTerm?: string): Promise<User[]> => {
   try {
-    const api = await createAuthenticatedApi();
     const endpoint = searchTerm
       ? `/admin/users/search?search=${encodeURIComponent(searchTerm)}`
       : "/admin/users";
 
-    const response = await api.get(endpoint);
+    const response = await authenticatedApi.get(endpoint);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
@@ -111,8 +97,7 @@ export const fetchForums = async (
   searchTerm?: string
 ): Promise<{ id: string; name: string; description: string }[]> => {
   try {
-    const api = await createAuthenticatedApi();
-    const response = await api.get(
+    const response = await authenticatedApi.get(
       searchTerm
         ? `/admin/forums?search=${encodeURIComponent(searchTerm)}`
         : "/admin/forums"
@@ -131,8 +116,7 @@ export const fetchForums = async (
 // Fetch details of a specific forum
 export const fetchForumDetails = async (forumId: string): Promise<Forum> => {
   try {
-    const api = await createAuthenticatedApi();
-    const response = await api.get(`/admin/forums/${forumId}`);
+    const response = await authenticatedApi.get(`/admin/forums/${forumId}`);
     return response.data;
   } catch (error) {
     console.error("Error fetching forum details:", error);
@@ -151,8 +135,7 @@ export const createForum = async (
   forumData: CreateForumData
 ): Promise<Forum> => {
   try {
-    const api = await createAuthenticatedApi();
-    const response = await api.post("/admin/forums", forumData);
+    const response = await authenticatedApi.post("/admin/forums", forumData);
     return response.data;
   } catch (error) {
     console.error("Error creating forum:", error);
@@ -167,9 +150,7 @@ export const createForum = async (
 // Approve a user
 export const approveUser = async (userId: string, forumId?: string): Promise<User> => {
   try {
-    const api = await createAuthenticatedApi();
-    // Pass the forumId in the request body
-    const response = await api.put(`/admin/users/${userId}/approve`, { forumId });
+    const response = await authenticatedApi.put(`/admin/users/${userId}/approve`, { forumId });
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
@@ -182,8 +163,7 @@ export const approveUser = async (userId: string, forumId?: string): Promise<Use
 // Reject a user
 export const rejectUser = async (userId: string, forumId?: string): Promise<User> => {
   try {
-    const api = await createAuthenticatedApi();
-    const response = await api.put(`/admin/users/${userId}/reject`, { forumId });
+    const response = await authenticatedApi.put(`/admin/users/${userId}/reject`, { forumId });
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
@@ -198,8 +178,7 @@ export const deleteUser = async (
   userId: string
 ): Promise<{ message: string }> => {
   try {
-    const api = await createAuthenticatedApi();
-    const response = await api.delete(`/admin/users/${userId}`);
+    const response = await authenticatedApi.delete(`/admin/users/${userId}`);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
@@ -214,8 +193,7 @@ export const updateForum = async (
   data: UpdateForumData
 ): Promise<Forum> => {
   try {
-    const api = await createAuthenticatedApi();
-    const response = await api.put(`/admin/forums/${forumId}/update`, data);
+    const response = await authenticatedApi.put(`/admin/forums/${forumId}/update`, data);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
@@ -227,12 +205,11 @@ export const updateForum = async (
 
 export const fetchVenues = async (searchTerm?: string): Promise<Venue[]> => {
   try {
-    const api = await createAuthenticatedApi();
     const endpoint = searchTerm
       ? `/admin/venues?search=${encodeURIComponent(searchTerm)}`
       : "/admin/venues";
 
-    const response = await api.get(endpoint);
+    const response = await authenticatedApi.get(endpoint);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
@@ -247,8 +224,7 @@ export const createVenue = async (
   venueData: CreateVenueData
 ): Promise<Venue> => {
   try {
-    const api = await createAuthenticatedApi();
-    const response = await api.post("/admin/venues", venueData);
+    const response = await authenticatedApi.post("/admin/venues", venueData);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
@@ -260,8 +236,7 @@ export const createVenue = async (
 
 export const fetchVenueDetails = async (venueId: string): Promise<Venue> => {
   try {
-    const api = await createAuthenticatedApi();
-    const response = await api.get(`/admin/venues/${venueId}`);
+    const response = await authenticatedApi.get(`/admin/venues/${venueId}`);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
@@ -278,8 +253,7 @@ export const updateVenue = async (
   data: UpdateVenueData
 ): Promise<Venue> => {
   try {
-    const api = await createAuthenticatedApi();
-    const response = await api.put(`/admin/venues/${venueId}/update`, data);
+    const response = await authenticatedApi.put(`/admin/venues/${venueId}/update`, data);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
@@ -294,8 +268,7 @@ export const deleteForum = async (
   forumId: string
 ): Promise<{ message: string }> => {
   try {
-    const api = await createAuthenticatedApi();
-    const response = await api.delete(`/admin/forums/${forumId}`);
+    const response = await authenticatedApi.delete(`/admin/forums/${forumId}`);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
@@ -310,8 +283,7 @@ export const deleteVenue = async (
   venueId: string
 ): Promise<{ message: string }> => {
   try {
-    const api = await createAuthenticatedApi();
-    const response = await api.delete(`/admin/venues/${venueId}`);
+    const response = await authenticatedApi.delete(`/admin/venues/${venueId}`);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
@@ -320,5 +292,3 @@ export const deleteVenue = async (
     throw new Error("Failed to delete venue. Please try again.");
   }
 };
-
-export default createAuthenticatedApi;

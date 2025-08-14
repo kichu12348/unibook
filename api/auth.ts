@@ -1,28 +1,47 @@
-import axios from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { API_CONFIG,APP_CONFIG } from "../constants/config";
 
-// Create authenticated axios instance for auth operations
-const createAuthApi = async () => {
-  const token = await AsyncStorage.getItem('auth_token');
-  
-  return axios.create({
-    baseURL: process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000/api/v1',
-    timeout: 10000,
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': token ? `Bearer ${token}` : '',
-    },
-  });
-};
-
-// Base axios instance for non-authenticated requests
-export const authApi = axios.create({
-  baseURL: process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000/api/v1',
-  timeout: 10000,
-  headers: {
-    'Content-Type': 'application/json',
-  },
+export const publicApi = axios.create({
+  baseURL: API_CONFIG.BASE_URI,
+  timeout: API_CONFIG.TIMEOUT,
+  headers: API_CONFIG.HEADERS,
 });
+
+let authToken: string | null;
+
+export function setLocalAuthToken(token: string): void {
+  authToken = token;
+}
+
+export function removeLocalAuthToken(): void {
+  authToken = null;
+}
+
+export const authenticatedApi = axios.create({
+  baseURL: API_CONFIG.BASE_URI,
+  timeout: API_CONFIG.TIMEOUT,
+  headers: API_CONFIG.HEADERS,
+});
+
+authenticatedApi.interceptors.request.use(
+  async (config) => {
+    if (authToken) {
+      config.headers["Authorization"] = `Bearer ${authToken}`;
+    } else {
+      const token = await AsyncStorage.getItem(APP_CONFIG.TOKEN_KEY);
+      if (token) {
+        config.headers["Authorization"] = `Bearer ${token}`;
+        setLocalAuthToken(token);
+      } else {
+        delete config.headers["Authorization"];
+        throw new Error("No valid token found");
+      }
+    }
+    return config;
+  },
+  (err) => Promise.reject(err)
+);
 
 // Types
 export interface LoginCredentials {
@@ -84,64 +103,61 @@ export interface UserProfile {
 }
 
 // Authentication API functions
-export const loginUser = async (credentials: LoginCredentials): Promise<LoginResponse> => {
+export const loginUser = async (
+  credentials: LoginCredentials
+): Promise<LoginResponse> => {
   try {
-    const response = await authApi.post('/auth/login', credentials);
+    const response = await publicApi.post("/auth/login", credentials);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
-      throw new Error(error.response.data.error || 'Login failed');
+      throw new Error(error.response.data.error || "Login failed");
     }
-    throw new Error('Network error. Please check your connection.');
+    throw new Error("Network error. Please check your connection.");
   }
 };
 
-export const registerUser = async (formData: RegisterFormData): Promise<RegisterResponse> => {
+export const registerUser = async (
+  formData: RegisterFormData
+): Promise<RegisterResponse> => {
   try {
-    const response = await authApi.post('/auth/register', formData);
+    const response = await publicApi.post("/auth/register", formData);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
-      throw new Error(error.response.data.error || 'Registration failed');
+      throw new Error(error.response.data.error || "Registration failed");
     }
-    throw new Error('Network error. Please check your connection.');
+    throw new Error("Network error. Please check your connection.");
   }
 };
 
-export const verifyUserOtp = async (data: VerifyOtpData): Promise<VerifyOtpResponse> => {
+export const verifyUserOtp = async (
+  data: VerifyOtpData
+): Promise<VerifyOtpResponse> => {
   try {
-    const response = await authApi.post('/auth/verify-email', data);
+    const response = await publicApi.post("/auth/verify-email", data);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
-      throw new Error(error.response.data.error || 'OTP verification failed');
+      throw new Error(error.response.data.error || "OTP verification failed");
     }
-    throw new Error('Network error. Please check your connection.');
+    throw new Error("Network error. Please check your connection.");
   }
 };
 
 export const fetchMe = async (): Promise<UserProfile> => {
   try {
-    const api = await createAuthApi();
-    const response = await api.get('/auth/me');
+    const response = await authenticatedApi.get("/auth/me");
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
       if (error.response.status === 401) {
-        throw new Error('Session expired. Please log in again.');
+        throw new Error("Session expired. Please log in again.");
       }
-      throw new Error(error.response.data.error || 'Failed to fetch user profile');
+      throw new Error(
+        error.response.data.error || "Failed to fetch user profile"
+      );
     }
-    throw new Error('Network error. Please check your connection.');
+    throw new Error("Network error. Please check your connection.");
   }
-};
-
-// Set authorization header for subsequent requests
-export const setAuthToken = (token: string) => {
-  authApi.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-};
-
-// Remove authorization header
-export const removeAuthToken = () => {
-  delete authApi.defaults.headers.common['Authorization'];
 };

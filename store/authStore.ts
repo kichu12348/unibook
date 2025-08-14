@@ -1,17 +1,21 @@
-import { create } from 'zustand';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Alert } from 'react-native';
-import { 
-  loginUser, 
-  registerUser, 
-  verifyUserOtp, 
-  fetchMe, 
-  setAuthToken, 
-  removeAuthToken,
+import { create } from "zustand";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Alert } from "react-native";
+import {
+  loginUser,
+  registerUser,
+  verifyUserOtp,
+  fetchMe,
   LoginCredentials,
   RegisterFormData,
-  VerifyOtpData 
-} from '../api/auth';
+  VerifyOtpData,
+  setLocalAuthToken,
+  removeLocalAuthToken
+} from "../api/auth";
+
+import { APP_CONFIG } from "../constants/config";
+
+const { TOKEN_KEY, USER_KEY } = APP_CONFIG;
 
 interface User {
   id: string;
@@ -30,7 +34,7 @@ interface User {
   college?: {
     id: string;
     name: string;
-  }
+  };
 }
 
 interface AuthState {
@@ -43,13 +47,12 @@ interface AuthState {
   initializeApp: () => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
   register: (formData: RegisterFormData) => Promise<boolean>;
-  verifyOtp: (data: VerifyOtpData) => Promise<boolean>;
+  verifyOtp: (data: VerifyOtpData, fullName: string) => Promise<boolean>;
   logout: () => Promise<void>;
   clearError: () => void;
 }
 
-const TOKEN_KEY = 'auth_token';
-const USER_KEY = 'user_data';
+
 
 export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
@@ -62,11 +65,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   initializeApp: async () => {
     try {
       const token = await AsyncStorage.getItem(TOKEN_KEY);
-      
+
       if (token) {
-        // Set token in axios headers
-        setAuthToken(token);
-        
+        setLocalAuthToken(token);
+
         try {
           // Fetch user profile to validate token
           const user = await fetchMe();
@@ -79,7 +81,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           });
         } catch (error) {
           // Token is invalid, clear it
-          console.error('Token validation failed:', error);
+          console.error("Token validation failed:", error);
           await get().logout();
           set({ appIsReady: true });
         }
@@ -87,8 +89,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         set({ appIsReady: true });
       }
     } catch (error) {
-      console.error('Error initializing app:', error);
-      set({ appIsReady: true, error: 'Failed to initialize app' });
+      console.error("Error initializing app:", error);
+      set({ appIsReady: true, error: "Failed to initialize app" });
     }
   },
 
@@ -97,17 +99,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     try {
       const credentials: LoginCredentials = { email, password };
       const response = await loginUser(credentials);
-      
-      // Save token to AsyncStorage
       await AsyncStorage.setItem(TOKEN_KEY, response.token);
-      
-      // Set token in axios headers for immediate use
-      setAuthToken(response.token);
-      
-      // Fetch user details using the token
+      setLocalAuthToken(response.token);
       const user = await fetchMe();
-      
-      // Save user data to AsyncStorage
       await AsyncStorage.setItem(USER_KEY, JSON.stringify(user ? user : {}));
 
       set({
@@ -118,10 +112,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         error: null,
       });
     } catch (error) {
-      console.error('Login error:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Login failed. Please try again.';
-      set({ 
-        isLoading: false, 
+      console.error("Login error:", error);
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Login failed. Please try again.";
+      set({
+        isLoading: false,
         error: errorMessage,
         isAuthenticated: false,
         user: null,
@@ -135,91 +132,78 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       const response = await registerUser(formData);
-      
-      // Show success message
+
       Alert.alert(
-        'Registration Successful!',
-        response.message || 'Please check your email for a verification code.',
-        [{ text: 'OK' }]
+        "Registration Successful!",
+        response.message || "Please check your email for a verification code.",
+        [{ text: "OK" }]
       );
-      
+
       set({ isLoading: false, error: null });
       return true;
     } catch (error) {
-      console.error('Registration error:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Registration failed. Please try again.';
+      console.error("Registration error:", error);
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Registration failed. Please try again.";
       set({ isLoading: false, error: errorMessage });
       return false;
     }
   },
 
-  verifyOtp: async (data: VerifyOtpData) => {
+  verifyOtp: async (data: VerifyOtpData, fullName: string) => {
     set({ isLoading: true, error: null });
     try {
       const response = await verifyUserOtp(data);
-      
+
       if (response.token) {
-        // Set token in axios headers first
-        setAuthToken(response.token);
-        
-        let user = response.user;
-        
-        // If no user object provided, fetch user details
-        if (!user) {
-          user = await fetchMe();
-        }
-        
-        // User is approved, handle like login
+        setLocalAuthToken(response.token);
+        const user = await fetchMe();
         await AsyncStorage.setItem(TOKEN_KEY, response.token);
         await AsyncStorage.setItem(USER_KEY, JSON.stringify(user));
-        
         set({
-          user: user,
+          user,
           token: response.token,
           isAuthenticated: true,
           isLoading: false,
-          error: null,
         });
-        
-        Alert.alert(
-          'Verification Successful!',
-          'Welcome! You have been logged in successfully.',
-          [{ text: 'OK' }]
-        );
-        
-        return true; // User is authenticated
+        return true;
       } else {
-        // User verification successful but pending approval
-        set({ isLoading: false, error: null });
-        
-        Alert.alert(
-          'Verification Successful!',
-          response.message || 'Your account is pending approval. You will be notified once approved.',
-          [{ text: 'OK' }]
-        );
-        
-        return false; // User not authenticated yet, pending approval
+        const pendingUser: User = {
+          id: "",
+          fullName: fullName,
+          email: data.email,
+          role: "student",
+          approvalStatus: "pending",
+          isEmailVerified: true,
+          createdAt: new Date().toISOString(),
+        };
+        set({
+          user: pendingUser,
+          isAuthenticated: true,
+          token: null,
+          isLoading: false,
+        });
+        Alert.alert("Verification Successful!", response.message);
+        return true;
       }
     } catch (error) {
-      console.error('OTP verification error:', error);
-      const errorMessage = error instanceof Error ? error.message : 'OTP verification failed. Please try again.';
+      const errorMessage =
+        error instanceof Error ? error.message : "OTP verification failed.";
       set({ isLoading: false, error: errorMessage });
-      
-      Alert.alert('Verification Failed', errorMessage, [{ text: 'OK' }]);
-      
       return false;
     }
   },
 
   logout: async () => {
     try {
-      // Clear AsyncStorage
       await AsyncStorage.removeItem(TOKEN_KEY);
       await AsyncStorage.removeItem(USER_KEY);
-      
-      // Remove token from axios headers
-      removeAuthToken();
-      
+
+
+      removeLocalAuthToken();
+
       set({
         user: null,
         token: null,
@@ -228,7 +212,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         error: null,
       });
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error("Logout error:", error);
     }
   },
 

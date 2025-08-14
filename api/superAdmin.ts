@@ -1,20 +1,5 @@
-import axios from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
-// Create authenticated axios instance for Super Admin
-const createAuthenticatedApi = async () => {
-  const token = await AsyncStorage.getItem('auth_token');
-  
-  return axios.create({
-    baseURL: process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000/api/v1',
-    timeout: 10000,
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': token ? `Bearer ${token}` : '',
-    },
-  });
-};
-
+import axios from "axios";
+import { authenticatedApi } from "./auth";
 // College interfaces
 export interface College {
   id: string;
@@ -54,125 +39,148 @@ export interface UpdateCollegeData {
 // Fetch all colleges
 export const fetchColleges = async (): Promise<College[]> => {
   try {
-    const api = await createAuthenticatedApi();
-    const response = await api.get('/sa/colleges');
+    const response = await authenticatedApi.get("/sa/colleges");
     return response.data;
   } catch (error) {
-    console.error('Error fetching colleges:', error);
-    throw new Error('Failed to fetch colleges. Please try again.');
+    console.error("Error fetching colleges:", error);
+    throw new Error("Failed to fetch colleges. Please try again.");
   }
 };
 
 // Create a new college
-export const createCollege = async (data: CreateCollegeData): Promise<College> => {
+export const createCollege = async (
+  data: CreateCollegeData
+): Promise<College> => {
   try {
-    const api = await createAuthenticatedApi();
-    const response = await api.post('/sa/colleges', data);
+    const response = await authenticatedApi.post("/sa/colleges", data);
     return response.data;
   } catch (error) {
-    console.error('Error creating college:', error);
-    
+    console.error("Error creating college:", error);
+
     if (axios.isAxiosError(error)) {
-      const message = error.response?.data?.message || 'Failed to create college.';
+      const message =
+        error.response?.data?.message || "Failed to create college.";
       throw new Error(message);
     }
-    
-    throw new Error('Network error. Please check your connection and try again.');
+
+    throw new Error(
+      "Network error. Please check your connection and try again."
+    );
   }
 };
 
 // Fetch college details by ID
-export const fetchCollegeDetails = async (collegeId: string): Promise<College> => {
+export const fetchCollegeDetails = async (
+  collegeId: string
+): Promise<College> => {
   try {
-    const api = await createAuthenticatedApi();
-    const response = await api.get(`/sa/colleges/${collegeId}`);
+    const response = await authenticatedApi.get(`/sa/colleges/${collegeId}`);
     return response.data;
   } catch (error) {
-    console.error('Error fetching college details:', error);
-    
+    console.error("Error fetching college details:", error);
+
     // Return mock data for development
     if (__DEV__) {
       return {
         id: collegeId,
-        name: 'Sample University',
-        domainName: 'sample.edu',
+        name: "Sample University",
+        domainName: "sample.edu",
         hasPaid: true,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
     }
-    
-    throw new Error('Failed to fetch college details. Please try again.');
+
+    throw new Error("Failed to fetch college details. Please try again.");
   }
 };
 
 // Fetch college administrators
-export const fetchCollegeAdmins = async (collegeId: string): Promise<CollegeAdmin[]> => {
+export const fetchCollegeAdmins = async (
+  collegeId: string
+): Promise<CollegeAdmin[]> => {
   try {
-    const api = await createAuthenticatedApi();
-    const response = await api.get(`/sa/colleges/${collegeId}/admins`);
+    const response = await authenticatedApi.get(
+      `/sa/colleges/${collegeId}/admins`
+    );
     return response.data;
   } catch (error) {
-    console.error('Error fetching college admins:', error);
-    
+    console.error("Error fetching college admins:", error);
+
     // Return mock data for development
     if (__DEV__) {
       return [
         {
-          id: '1',
-          fullName: 'John Doe',
-          email: 'john.doe@sample.edu',
-          role: 'college_admin',
+          id: "1",
+          fullName: "John Doe",
+          email: "john.doe@sample.edu",
+          role: "college_admin",
           createdAt: new Date().toISOString(),
           collegeId: collegeId,
         },
         {
-          id: '2',
-          fullName: 'Jane Smith',
-          email: 'jane.smith@sample.edu',
-          role: 'college_admin',
+          id: "2",
+          fullName: "Jane Smith",
+          email: "jane.smith@sample.edu",
+          role: "college_admin",
           createdAt: new Date().toISOString(),
           collegeId: collegeId,
         },
       ];
     }
-    
-    throw new Error('Failed to fetch college administrators. Please try again.');
+
+    throw new Error(
+      "Failed to fetch college administrators. Please try again."
+    );
   }
 };
 
 // Create college administrator
-export const createCollegeAdmin = async (collegeId: string, adminData: CreateCollegeAdminData): Promise<CollegeAdmin> => {
+export const createCollegeAdmin = async (
+  collegeId: string,
+  adminData: CreateCollegeAdminData
+): Promise<CollegeAdmin> => {
   try {
-    const api = await createAuthenticatedApi();
-    const response = await api.post(`/sa/colleges/${collegeId}/admins`, adminData);
+    const response = await authenticatedApi.post(
+      `/sa/colleges/${collegeId}/admins`,
+      adminData
+    );
     return response.data;
   } catch (error) {
-    console.error('Error creating college admin:', error);
-    
+    console.error("Error creating college admin:", error);
+
     if (axios.isAxiosError(error) && error.response) {
-      throw new Error(error.response.data.message || 'Failed to create college administrator');
+      throw new Error(
+        error.response.data.message || "Failed to create college administrator"
+      );
     }
-    
-    throw new Error('Failed to create college administrator. Please try again.');
+
+    throw new Error(
+      "Failed to create college administrator. Please try again."
+    );
   }
 };
 
 // Update college
-export const updateCollege = async (collegeId: string, updateData: UpdateCollegeData): Promise<College> => {
+export const updateCollege = async (
+  collegeId: string,
+  updateData: UpdateCollegeData
+): Promise<College> => {
   try {
-    const api = await createAuthenticatedApi();
-    const response = await api.put(`/sa/colleges/${collegeId}/update`, updateData);
+    const response = await authenticatedApi.put(
+      `/sa/colleges/${collegeId}/update`,
+      updateData
+    );
     return response.data;
   } catch (error) {
-    console.error('Error updating college:', error);
-    
+    console.error("Error updating college:", error);
+
     if (axios.isAxiosError(error) && error.response) {
-      throw new Error(error.response.data.message || 'Failed to update college');
+      throw new Error(
+        error.response.data.message || "Failed to update college"
+      );
     }
-    
-    throw new Error('Failed to update college. Please try again.');
+
+    throw new Error("Failed to update college. Please try again.");
   }
 };
-
-export default createAuthenticatedApi;

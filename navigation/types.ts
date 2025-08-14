@@ -1,10 +1,9 @@
 import { EventDetails } from "../api/forum";
-import { AcceptedEvent, PendingRequest } from '../api/teacher';
 
 export type AuthStackParamList = {
   Login: undefined;
   Register: undefined;
-  OtpVerification: { email: string };
+  OtpVerification: { email: string; fullName: string };
 };
 
 export type SuperAdminTabParamList = {

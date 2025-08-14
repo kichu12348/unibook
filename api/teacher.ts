@@ -1,23 +1,10 @@
 import axios from "axios";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { authenticatedApi } from "./auth";
 import { ImageContentFit } from "expo-image";
-
-// Create authenticated axios instance for Teacher
-const createAuthenticatedApi = async () => {
-  const token = await AsyncStorage.getItem("auth_token");
-  return axios.create({
-    baseURL: process.env.EXPO_PUBLIC_API_URL || "http://localhost:3000/api/v1",
-    timeout: 10000,
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: token ? `Bearer ${token}` : "",
-    },
-  });
-};
 
 // --- Interfaces ---
 export interface PendingRequest {
-  id: string; // This is the assignmentId
+  id: string;
   assignmentRole: string;
   status: "pending";
   createdAt: string;
@@ -82,8 +69,7 @@ export interface Assignment {
  */
 export const fetchPendingRequests = async (): Promise<PendingRequest[]> => {
   try {
-    const api = await createAuthenticatedApi();
-    const response = await api.get("/teachers/requests/pending");
+    const response = await authenticatedApi.get("/teachers/requests/pending");
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
@@ -103,8 +89,7 @@ export const acceptRequest = async (
   assignmentId: string
 ): Promise<{ message: string }> => {
   try {
-    const api = await createAuthenticatedApi();
-    const response = await api.post(
+    const response = await authenticatedApi.post(
       `/teachers/requests/${assignmentId}/accept`
     );
     return response.data;
@@ -124,8 +109,7 @@ export const rejectRequest = async (
   assignmentId: string
 ): Promise<{ message: string }> => {
   try {
-    const api = await createAuthenticatedApi();
-    const response = await api.post(
+    const response = await authenticatedApi.post(
       `/teachers/requests/${assignmentId}/reject`
     );
     return response.data;
@@ -143,8 +127,7 @@ export const rejectRequest = async (
  */
 export const fetchAcceptedEvents = async (): Promise<AcceptedEvent[]> => {
   try {
-    const api = await createAuthenticatedApi();
-    const response = await api.get("/teachers/events/accepted");
+    const response = await authenticatedApi.get("/teachers/events/accepted");
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
@@ -164,8 +147,7 @@ export const cancelAssignment = async (
   assignmentId: string
 ): Promise<{ message: string }> => {
   try {
-    const api = await createAuthenticatedApi();
-    const response = await api.post(
+    const response = await authenticatedApi.post(
       `/teachers/requests/${assignmentId}/cancel`
     );
     return response.data;
@@ -187,8 +169,9 @@ export const fetchAssignmentDetails = async (
   assignmentId: string
 ): Promise<Assignment> => {
   try {
-    const api = await createAuthenticatedApi();
-    const response = await api.get(`/teachers/requests/${assignmentId}`);
+    const response = await authenticatedApi.get(
+      `/teachers/requests/${assignmentId}`
+    );
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {

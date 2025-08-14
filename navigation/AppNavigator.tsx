@@ -8,6 +8,7 @@ import CollegeAdminNavigator from "./CollegeAdmin/CollegeAdminNavigator";
 import ForumHeadNavigator from "./ForumHead/ForumHeadNavigator";
 import TeacherNavigator from "./Teacher/TeacherNavigator";
 import StudentNavigator from "./Student/StudentNavigator";
+import PendingApprovalScreen from "../screens/Auth/PendingApprovalScreen";
 
 const AppNavigator: React.FC = () => {
   const { isAuthenticated, appIsReady, user } = useAuthStore();
@@ -29,32 +30,36 @@ const AppNavigator: React.FC = () => {
       </View>
     );
   }
-
-  if (!isAuthenticated) {
+if (!isAuthenticated) {
     return <AuthNavigator />;
   }
+  
+  if (user) {
+    const isApproved = user.approvalStatus === 'approved';
+    const role = user.role;
 
-  if (user && user.role === "super_admin") {
-    return <SuperAdminNavigator />;
+    if (role === 'teacher' || role === 'forum_head') {
+      if (!isApproved) {
+        return <PendingApprovalScreen />;
+      }
+    }
+    switch (role) {
+      case "super_admin":
+        return <SuperAdminNavigator />;
+      case "college_admin":
+        return <CollegeAdminNavigator />;
+      case "forum_head":
+        return <ForumHeadNavigator />;
+      case "teacher":
+        return <TeacherNavigator />;
+      case "student":
+        return <StudentNavigator />;
+      default:
+        return <AuthNavigator />;
+    }
   }
 
-  if (user && user.role === "college_admin") {
-    return <CollegeAdminNavigator />;
-  }
-
-  if (user && user.role === "forum_head") {
-    return <ForumHeadNavigator />;
-  }
-
-  if (user && user.role === "teacher") {
-    return <TeacherNavigator />;
-  }
-
-  if (user && user.role === "student") {
-    return <StudentNavigator />;
-  }
-
-  // Default fallback - should not reach here with proper authentication
+  //fallback
   return <AuthNavigator />;
 };
 
