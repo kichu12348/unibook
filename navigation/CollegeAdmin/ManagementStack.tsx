@@ -1,13 +1,13 @@
 import React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import ForumsAndVenuesScreen from "../screens/CollegeAdmin/ForumsAndVenuesScreen";
-import CreateForumScreen from "../screens/CollegeAdmin/CreateForumScreen";
-import CreateVenueScreen from "../screens/CollegeAdmin/CreateVenueScreen";
-import ForumDetailsScreen from "../screens/CollegeAdmin/ForumDetailsScreen";
-import EditForumScreen from "../screens/CollegeAdmin/EditForumScreen";
-import VenueDetailsScreen from "../screens/CollegeAdmin/VenueDetailsScreen";
-import EditVenueScreen from "../screens/CollegeAdmin/EditVenueScreen";
-import { Forum, Venue } from "../api/collegeAdmin";
+import ForumsAndVenuesScreen from "../../screens/CollegeAdmin/ForumsAndVenuesScreen";
+import CreateForumScreen from "../../screens/CollegeAdmin/CreateForumScreen";
+import CreateVenueScreen from "../../screens/CollegeAdmin/CreateVenueScreen";
+import ForumDetailsScreen from "../../screens/CollegeAdmin/ForumDetailsScreen";
+import EditForumScreen from "../../screens/CollegeAdmin/EditForumScreen";
+import VenueDetailsScreen from "../../screens/CollegeAdmin/VenueDetailsScreen";
+import EditVenueScreen from "../../screens/CollegeAdmin/EditVenueScreen";
+import { Forum, Venue } from "../../api/collegeAdmin";
 
 export type ManagementStackParamList = {
   Main: undefined;

@@ -12,7 +12,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { SuperAdminStackParamList } from "../../navigation/SuperAdminNavigator";
+import { SuperAdminStackParamList } from "../../navigation/SuperAdmin/SuperAdminNavigator";
 import { useTheme } from "../../hooks/useTheme";
 import { useSuperAdminStore } from "../../store/superAdminStore";
 import {

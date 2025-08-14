@@ -16,7 +16,7 @@ import StyledButton from "../../components/StyledButton";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { TeacherStackParamList } from "../../navigation/TeacherNavigator";
+import { TeacherStackParamList } from "../../navigation/Teacher/TeacherNavigator";
 
 type NavigationProp = NativeStackNavigationProp<TeacherStackParamList>;
 

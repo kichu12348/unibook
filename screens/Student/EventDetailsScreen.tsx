@@ -14,7 +14,7 @@ import { useTheme } from "../../hooks/useTheme";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { StudentStackParamList } from "../../navigation/StudentNavigator";
+import { StudentStackParamList } from "../../navigation/Student/StudentNavigator";
 import { Event, fetchEventById } from "../../api/student";
 import StyledButton from "../../components/StyledButton";
 import { Ionicons } from "@expo/vector-icons";

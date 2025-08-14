@@ -2,13 +2,13 @@ import React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import ForumHeadTabNavigator from "./ForumHeadTabNavigator";
 // Import the new screens
-import CreateEventScreen from "../screens/ForumHead/CreateEventScreen";
-import CreateEventPreviewScreen from "../screens/ForumHead/CreateEventPreviewScreen";
-import EventDetailsScreen from "../screens/ForumHead/EventDetailsScreen";
-import EditEventScreen from "../screens/ForumHead/EditEventScreen";
-import ManageStaffScreen from "../screens/ForumHead/ManageStaffScreen";
-import ManageCollaboratorsScreen from "../screens/ForumHead/ManageCollaboratorsScreen";
-import { ForumHeadTabParamList } from "./types";
+import CreateEventScreen from "../../screens/ForumHead/CreateEventScreen";
+import CreateEventPreviewScreen from "../../screens/ForumHead/CreateEventPreviewScreen";
+import EventDetailsScreen from "../../screens/ForumHead/EventDetailsScreen";
+import EditEventScreen from "../../screens/ForumHead/EditEventScreen";
+import ManageStaffScreen from "../../screens/ForumHead/ManageStaffScreen";
+import ManageCollaboratorsScreen from "../../screens/ForumHead/ManageCollaboratorsScreen";
+import { ForumHeadTabParamList } from "../types";
 
 export type ForumHeadStackParamList = ForumHeadTabParamList & {
   ManageCollaborators: { eventId: string; eventName: string };

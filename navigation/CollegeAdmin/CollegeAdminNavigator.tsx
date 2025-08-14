@@ -1,7 +1,7 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import CollegeAdminTabNavigator from './CollegeAdminTabNavigator';
-import { CollegeAdminTabParamList } from './types';
+import { CollegeAdminTabParamList } from '../types';
 
 export type CollegeAdminStackParamList = {
   CollegeAdminTabs: undefined;

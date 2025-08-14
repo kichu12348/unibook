@@ -15,7 +15,7 @@ import { PendingRequest } from "../../api/teacher";
 import StyledButton from "../../components/StyledButton";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
-import { TeacherStackParamList } from "../../navigation/TeacherNavigator";
+import { TeacherStackParamList } from "../../navigation/Teacher/TeacherNavigator";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 type NavigationProp = NativeStackNavigationProp<TeacherStackParamList>;

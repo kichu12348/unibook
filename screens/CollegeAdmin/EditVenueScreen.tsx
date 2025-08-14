@@ -13,7 +13,7 @@ import { useTheme } from "../../hooks/useTheme";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { ManagementStackParamList } from "../../navigation/ManagementStack";
+import { ManagementStackParamList } from "../../navigation/CollegeAdmin/ManagementStack";
 import { useCollegeAdminStore } from "../../store/collegeAdminStore";
 import StyledTextInput from "../../components/StyledTextInput";
 import StyledButton from "../../components/StyledButton";

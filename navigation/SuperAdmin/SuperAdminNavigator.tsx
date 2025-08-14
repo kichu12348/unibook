@@ -1,11 +1,11 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import SuperAdminTabNavigator from './SuperAdminTabNavigator';
-import CreateCollegeScreen from '../screens/SuperAdmin/CreateCollegeScreen';
-import CollegeDetailsScreen from '../screens/SuperAdmin/CollegeDetailsScreen';
-import CreateCollegeAdminScreen from '../screens/SuperAdmin/CreateCollegeAdminScreen';
-import EditCollegeScreen from '../screens/SuperAdmin/EditCollegeScreen';
-import { College } from '../api/superAdmin';
+import CreateCollegeScreen from '../../screens/SuperAdmin/CreateCollegeScreen';
+import CollegeDetailsScreen from '../../screens/SuperAdmin/CollegeDetailsScreen';
+import CreateCollegeAdminScreen from '../../screens/SuperAdmin/CreateCollegeAdminScreen';
+import EditCollegeScreen from '../../screens/SuperAdmin/EditCollegeScreen';
+import { College } from '../../api/superAdmin';
 
 export type SuperAdminStackParamList = {
   SuperAdminTabs: undefined;

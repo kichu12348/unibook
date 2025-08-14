@@ -2,12 +2,12 @@ import React from "react";
 import { View, ActivityIndicator, StyleSheet } from "react-native";
 import { useAuthStore } from "../store/authStore";
 import { useTheme } from "../hooks/useTheme";
-import AuthNavigator from "./AuthNavigator";
-import SuperAdminNavigator from "./SuperAdminNavigator";
-import CollegeAdminNavigator from "./CollegeAdminNavigator";
-import ForumHeadNavigator from "./ForumHeadNavigator";
-import TeacherNavigator from "./TeacherNavigator";
-import StudentNavigator from "./StudentNavigator";
+import AuthNavigator from "./Auth/AuthNavigator";
+import SuperAdminNavigator from "./SuperAdmin/SuperAdminNavigator";
+import CollegeAdminNavigator from "./CollegeAdmin/CollegeAdminNavigator";
+import ForumHeadNavigator from "./ForumHead/ForumHeadNavigator";
+import TeacherNavigator from "./Teacher/TeacherNavigator";
+import StudentNavigator from "./Student/StudentNavigator";
 
 const AppNavigator: React.FC = () => {
   const { isAuthenticated, appIsReady, user } = useAuthStore();

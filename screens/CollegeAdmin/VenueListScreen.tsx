@@ -12,7 +12,7 @@ import { useTheme } from "../../hooks/useTheme";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Venue } from "../../api/collegeAdmin";
-import { ManagementStackParamList } from "../../navigation/ManagementStack";
+import { ManagementStackParamList } from "../../navigation/CollegeAdmin/ManagementStack";
 
 type NavigationProp = NativeStackNavigationProp<ManagementStackParamList>;
 

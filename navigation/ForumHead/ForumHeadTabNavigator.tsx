@@ -1,11 +1,11 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { ForumHeadTabParamList } from './types';
-import CustomTabNavigator from '../components/CustomTabNavigator';
-import ProfileScreen from '../screens/SuperAdmin/ProfileScreen';
-import EventsScreen from '../screens/ForumHead/EventsScreen';
-import CalendarScreen from '../screens/ForumHead/CalendarScreen';
-import PeerApprovalsScreen from '../screens/ForumHead/PeerApprovalsScreen';
+import { ForumHeadTabParamList } from '../types';
+import CustomTabNavigator from '../../components/CustomTabNavigator';
+import ProfileScreen from '../../screens/SuperAdmin/ProfileScreen';
+import EventsScreen from '../../screens/ForumHead/EventsScreen';
+import CalendarScreen from '../../screens/ForumHead/CalendarScreen';
+import PeerApprovalsScreen from '../../screens/ForumHead/PeerApprovalsScreen';
 
 const Tab = createBottomTabNavigator<ForumHeadTabParamList>();
 

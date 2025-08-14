@@ -1,9 +1,9 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { StudentTabParamList } from './types';
-import CustomTabNavigator from '../components/CustomTabNavigator';
-import EventsScreen from '../screens/Student/EventsScreen';
-import ProfileScreen from '../screens/SuperAdmin/ProfileScreen';
+import { StudentTabParamList } from '../types';
+import CustomTabNavigator from '../../components/CustomTabNavigator';
+import EventsScreen from '../../screens/Student/EventsScreen';
+import ProfileScreen from '../../screens/SuperAdmin/ProfileScreen';
 
 const Tab = createBottomTabNavigator<StudentTabParamList>();
 

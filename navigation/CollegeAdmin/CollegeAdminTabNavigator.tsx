@@ -1,11 +1,11 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { CollegeAdminTabParamList } from './types';
-import CustomTabNavigator from '../components/CustomTabNavigator';
-import DashboardScreen from '../screens/CollegeAdmin/DashboardScreen';
-import UsersScreen from '../screens/CollegeAdmin/UsersScreen';
+import { CollegeAdminTabParamList } from '../types';
+import CustomTabNavigator from '../../components/CustomTabNavigator';
+import DashboardScreen from '../../screens/CollegeAdmin/DashboardScreen';
+import UsersScreen from '../../screens/CollegeAdmin/UsersScreen';
 import ManagementStack from './ManagementStack';
-import ProfileScreen from '../screens/SuperAdmin/ProfileScreen';
+import ProfileScreen from '../../screens/SuperAdmin/ProfileScreen';
 
 const Tab = createBottomTabNavigator<CollegeAdminTabParamList>();
 

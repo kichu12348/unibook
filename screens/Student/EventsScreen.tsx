@@ -12,7 +12,7 @@ import { useTheme } from "../../hooks/useTheme";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { StudentStackParamList } from "../../navigation/StudentNavigator";
+import { StudentStackParamList } from "../../navigation/Student/StudentNavigator";
 import { useStudentStore } from "../../store/studentStore";
 import { Event } from "../../api/student";
 import { Ionicons } from "@expo/vector-icons";

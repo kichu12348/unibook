@@ -12,7 +12,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { ForumHeadStackParamList } from "../../navigation/ForumHeadNavigator";
+import { ForumHeadStackParamList } from "../../navigation/ForumHead/ForumHeadNavigator";
 import { TAB_BAR_HEIGHT } from "../../constants/constants";
 import { useForumHeadStore } from "../../store/forumHeadStore";
 import { Event } from "../../api/forum";

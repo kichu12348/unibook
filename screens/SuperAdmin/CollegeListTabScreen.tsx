@@ -15,7 +15,7 @@ import { CompositeNavigationProp } from "@react-navigation/native";
 import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { SuperAdminTabParamList } from "../../navigation/types";
-import { SuperAdminStackParamList } from "../../navigation/SuperAdminNavigator";
+import { SuperAdminStackParamList } from "../../navigation/SuperAdmin/SuperAdminNavigator";
 import { useTheme } from "../../hooks/useTheme";
 import { useSuperAdminStore } from "../../store/superAdminStore";
 import { College } from "../../api/superAdmin";

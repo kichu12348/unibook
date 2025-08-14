@@ -13,7 +13,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RouteProp } from "@react-navigation/native";
-import { SuperAdminStackParamList } from "../../navigation/SuperAdminNavigator";
+import { SuperAdminStackParamList } from "../../navigation/SuperAdmin/SuperAdminNavigator";
 import { useTheme } from "../../hooks/useTheme";
 import { useSuperAdminStore } from "../../store/superAdminStore";
 import { useSafeAreaInsets } from "react-native-safe-area-context";

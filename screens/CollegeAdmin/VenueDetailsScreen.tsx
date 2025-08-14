@@ -13,7 +13,7 @@ import { useRoute, useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RouteProp } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
-import { ManagementStackParamList } from "../../navigation/ManagementStack";
+import { ManagementStackParamList } from "../../navigation/CollegeAdmin/ManagementStack";
 import { Venue, fetchVenueDetails } from "../../api/collegeAdmin";
 
 type NavigationProp = NativeStackNavigationProp<ManagementStackParamList>;

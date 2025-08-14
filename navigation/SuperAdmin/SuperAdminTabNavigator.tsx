@@ -1,9 +1,9 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { SuperAdminTabParamList } from './types';
-import CustomTabNavigator from '../components/CustomTabNavigator';
-import CollegeListTabScreen from '../screens/SuperAdmin/CollegeListTabScreen';
-import ProfileScreen from '../screens/SuperAdmin/ProfileScreen';
+import { SuperAdminTabParamList } from '../types';
+import CustomTabNavigator from '../../components/CustomTabNavigator';
+import CollegeListTabScreen from '../../screens/SuperAdmin/CollegeListTabScreen';
+import ProfileScreen from '../../screens/SuperAdmin/ProfileScreen';
 
 const Tab = createBottomTabNavigator<SuperAdminTabParamList>();
 
