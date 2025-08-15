@@ -11,7 +11,6 @@ import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 import Animated, {
   useAnimatedStyle,
   withTiming,
-  Easing,
 } from "react-native-reanimated";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
