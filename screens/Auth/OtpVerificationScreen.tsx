@@ -3,10 +3,9 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
-  KeyboardAvoidingView,
-  Platform,
   Alert,
+  TouchableOpacity,
+  useWindowDimensions,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
@@ -14,8 +13,9 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { AuthStackParamList } from "../../navigation/types";
 import { useTheme } from "../../hooks/useTheme";
 import { useAuthStore } from "../../store/authStore";
-import StyledTextInput from "../../components/StyledTextInput";
 import StyledButton from "../../components/StyledButton";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { ScrollView } from "react-native-gesture-handler";
 
 type NavigationProp = NativeStackNavigationProp<
   AuthStackParamList,
@@ -32,6 +32,9 @@ const OtpVerificationScreen: React.FC = () => {
 
   const [otp, setOtp] = useState("");
   const [otpError, setOtpError] = useState<string | undefined>();
+  const [scrollable, setScrollable] = useState<boolean>(false);
+
+  const { height } = useWindowDimensions();
 
   useEffect(() => {
     if (error) {
@@ -94,6 +97,106 @@ const OtpVerificationScreen: React.FC = () => {
     navigation.goBack();
   };
 
+  const handleNumberPress = (number: string) => {
+    if (otp.length < 4) {
+      const newOtp = otp + number;
+      setOtp(newOtp);
+      if (otpError) {
+        setOtpError(undefined);
+      }
+    }
+  };
+
+  const handleDeletePress = () => {
+    if (otp.length > 0) {
+      setOtp(otp.slice(0, -1));
+      if (otpError) {
+        setOtpError(undefined);
+      }
+    }
+  };
+
+  const renderOtpDots = () => {
+    const dots = [];
+    for (let i = 0; i < 4; i++) {
+      dots.push(
+        <View
+          key={i}
+          style={[
+            styles.otpBox,
+            {
+              backgroundColor:
+                i < otp.length ? theme.colors.primary : "transparent",
+              borderColor: otpError ? theme.colors.error : theme.colors.border,
+            },
+          ]}
+        >
+          {i < otp.length && (
+            <Text style={[styles.otpBoxText, { color: theme.colors.surface }]}>
+              {otp[i]}
+            </Text>
+          )}
+        </View>
+      );
+    }
+    return dots;
+  };
+
+  const renderNumberPad = () => {
+    const numbers = [
+      ["1", "2", "3"],
+      ["4", "5", "6"],
+      ["7", "8", "9"],
+      ["", "0", "delete"],
+    ];
+
+    return (
+      <View style={styles.numberPad}>
+        {numbers.map((row, rowIndex) => (
+          <View key={rowIndex} style={styles.numberRow}>
+            {row.map((item, colIndex) => {
+              if (item === "") {
+                return <View key={colIndex} style={styles.emptySpace} />;
+              }
+
+              const isDelete = item === "delete";
+              return (
+                <TouchableOpacity
+                  key={colIndex}
+                  style={[
+                    styles.numberButton,
+                    { backgroundColor: theme.colors.surface },
+                  ]}
+                  onPress={() =>
+                    isDelete ? handleDeletePress() : handleNumberPress(item)
+                  }
+                  activeOpacity={0.7}
+                >
+                  {isDelete ? (
+                    <Ionicons
+                      name="backspace-outline"
+                      size={22}
+                      color={theme.colors.text}
+                    />
+                  ) : (
+                    <Text
+                      style={[
+                        styles.numberButtonText,
+                        { color: theme.colors.text },
+                      ]}
+                    >
+                      {item}
+                    </Text>
+                  )}
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        ))}
+      </View>
+    );
+  };
+
   const styles = StyleSheet.create({
     container: {
       flex: 1,
@@ -101,141 +204,183 @@ const OtpVerificationScreen: React.FC = () => {
     },
     content: {
       flex: 1,
-      paddingHorizontal: 24,
-      paddingTop: 60,
+      paddingHorizontal: 20,
+      paddingTop: 30,
     },
     header: {
       alignItems: "center",
-      marginBottom: 40,
+      marginBottom: 20,
+      paddingTop: 10,
     },
     backButton: {
       position: "absolute",
       left: 0,
-      top: 0,
+      top: 10,
       width: 40,
       height: 40,
-      borderRadius: 20,
-      backgroundColor: theme.colors.surface,
       justifyContent: "center",
       alignItems: "center",
     },
     title: {
-      fontSize: 28,
+      fontSize: 22,
       fontWeight: "bold",
       color: theme.colors.text,
       textAlign: "center",
-      marginBottom: 8,
+      marginBottom: 6,
     },
     subtitle: {
-      fontSize: 16,
+      fontSize: 14,
       color: theme.colors.textSecondary,
       textAlign: "center",
-      lineHeight: 24,
+      lineHeight: 20,
     },
     emailText: {
       fontWeight: "600",
       color: theme.colors.primary,
     },
     form: {
-      marginBottom: 32,
+      flex: 1,
+      justifyContent: "space-between",
+      gap: 30,
+      paddingBottom: 10,
     },
-    inputContainer: {
-      marginBottom: 20,
+    otpContainer: {
+      alignItems: "center",
+      justifyContent: "center",
+      marginTop: 10,
+      marginBottom: 10,
     },
-    otpInput: {
+    otpDotsContainer: {
+      flexDirection: "row",
+      gap: 10,
+      marginBottom: 6,
+      width: "100%",
+      justifyContent: "space-evenly",
+      alignItems: "center",
+    },
+    otpBox: {
+      width: 50,
+      height: 50,
+      borderRadius: 8,
+      borderWidth: 1.5,
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    otpBoxText: {
+      fontSize: 22,
+      fontWeight: "600",
+    },
+    errorText: {
+      color: theme.colors.error,
+      fontSize: 12,
       textAlign: "center",
-      fontSize: 24,
-      letterSpacing: 8,
-      fontFamily: "monospace",
+      marginTop: 6,
+    },
+    numberPad: {
+      alignItems: "center",
+    },
+    numberRow: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      width: "100%",
+      marginBottom: 12,
+    },
+    numberButton: {
+      width: "30%",
+      height: 50,
+      borderRadius: 8,
+      justifyContent: "center",
+      alignItems: "center",
+      elevation: 1,
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.08,
+      shadowRadius: 1,
+    },
+    emptySpace: {
+      width: "30%",
+      height: 50,
+    },
+    numberButtonText: {
+      fontSize: 20,
+      fontWeight: "500",
     },
     buttonContainer: {
-      gap: 16,
+      marginVertical: 16,
     },
     resendContainer: {
       alignItems: "center",
-      marginTop: 24,
+      paddingBottom: 10,
     },
     resendText: {
-      fontSize: 14,
+      fontSize: 13,
       color: theme.colors.textSecondary,
-      marginBottom: 8,
+      marginBottom: 6,
     },
     resendButton: {
       padding: 0,
     },
   });
 
+  const insets = useSafeAreaInsets();
+
   return (
-    <SafeAreaView style={styles.container}>
-      <KeyboardAvoidingView
-        style={styles.content}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-      >
+    <View style={[styles.container, { paddingTop: insets.top }]}>
+      <View style={styles.content}>
         <View style={styles.header}>
-          <StyledButton
-            title=""
-            onPress={handleBack}
-            variant="text"
-            style={styles.backButton}
-          >
-            <Ionicons name="arrow-back" size={24} color={theme.colors.text} />
-          </StyledButton>
+          <TouchableOpacity onPress={handleBack} style={styles.backButton}>
+            <Ionicons
+              name="chevron-back"
+              size={24}
+              color={theme.colors.primary}
+            />
+          </TouchableOpacity>
 
           <Text style={styles.title}>Verify Email</Text>
           <Text style={styles.subtitle}>
-            Enter the 6-digit verification code sent to{"\n"}
+            Enter the 4-digit verification code sent to{"\n"}
             <Text style={styles.emailText}>{email}</Text>
           </Text>
         </View>
+        <ScrollView
+          contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}
+          style={{ flexGrow: 1 }}
+          showsVerticalScrollIndicator={false}
+          onContentSizeChange={(_, contentHeight) =>
+            setScrollable(contentHeight > height - 250)
+          }
+          scrollEnabled={scrollable}
+        >
+          <View style={styles.form}>
+            <View style={styles.otpContainer}>
+              <View style={styles.otpDotsContainer}>{renderOtpDots()}</View>
+              {otpError && <Text style={styles.errorText}>{otpError}</Text>}
+            </View>
 
-        <View style={styles.form}>
-          <View style={styles.inputContainer}>
-            <StyledTextInput
-              placeholder="0000"
-              value={otp}
-              onChangeText={(text) => {
-                // Only allow numeric input and limit to 4 characters
-                const numericText = text.replace(/[^0-9]/g, "").slice(0, 4);
-                setOtp(numericText);
-                if (otpError) {
-                  setOtpError(undefined);
-                }
-              }}
-              error={otpError}
-              keyboardType="numeric"
-              maxLength={6}
-              style={styles.otpInput}
-              leftElement={
-                <Ionicons
-                  name="shield-checkmark-outline"
-                  size={20}
-                  color={theme.colors.textSecondary}
-                />
-              }
-            />
+            {renderNumberPad()}
+
+            <View style={styles.buttonContainer}>
+              <StyledButton
+                title="Verify Code"
+                onPress={handleVerifyOtp}
+                loading={isLoading}
+                disabled={otp.length !== 4}
+              />
+            </View>
+
+            <View style={styles.resendContainer}>
+              <Text style={styles.resendText}>Didn't receive the code?</Text>
+              <StyledButton
+                title="Resend Code"
+                onPress={handleResendOtp}
+                variant="text"
+                style={styles.resendButton}
+              />
+            </View>
           </View>
-
-          <View style={styles.buttonContainer}>
-            <StyledButton
-              title="Verify Code"
-              onPress={handleVerifyOtp}
-              loading={isLoading}
-              disabled={!otp.trim() || otp.length !== 4}
-            />
-          </View>
-        </View>
-
-        <View style={styles.resendContainer}>
-          <Text style={styles.resendText}>Didn't receive the code?</Text>
-          <StyledButton
-            title="Resend Code"
-            onPress={handleResendOtp}
-            variant="text"
-            style={styles.resendButton}
-          />
-        </View>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+        </ScrollView>
+      </View>
+    </View>
   );
 };
 

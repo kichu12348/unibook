@@ -100,7 +100,7 @@ export const fetchEvents = async (): Promise<Event[]> => {
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
-      throw new Error(error.response.data.message || "Failed to fetch events");
+      throw new Error(error.response.data.error || "Failed to fetch events");
     }
     throw new Error("Failed to fetch events. Please try again.");
   }
@@ -116,7 +116,7 @@ export const fetchVenues = async (): Promise<Venue[]> => {
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
-      throw new Error(error.response.data.message || "Failed to fetch venues");
+      throw new Error(error.response.data.error || "Failed to fetch venues");
     }
     throw new Error("Failed to fetch venues. Please try again.");
   }
@@ -215,7 +215,7 @@ export const searchTeachers = async (
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
       throw new Error(
-        error.response.data.message || "Failed to search for teachers"
+        error.response.data.error || "Failed to search for teachers"
       );
     }
     throw new Error(
@@ -319,7 +319,7 @@ export const fetchYearlyEventActivity = async (year: number): Promise<EventActiv
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
-      throw new Error(error.response.data.message || 'Failed to fetch event activity');
+      throw new Error(error.response.data.error || 'Failed to fetch event activity');
     }
     throw new Error('An unexpected error occurred. Please try again.');
   }
@@ -336,7 +336,7 @@ export const fetchEventsByMonth = async (year: number, month: number): Promise<E
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
-      throw new Error(error.response.data.message || 'Failed to fetch monthly events');
+      throw new Error(error.response.data.error || 'Failed to fetch monthly events');
     }
     throw new Error('An unexpected network error occurred.');
   }

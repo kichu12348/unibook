@@ -147,21 +147,13 @@ export const useSuperAdminStore = create<SuperAdminState>((set, get) => ({
         [{ text: 'OK' }]
       );
       
-    } catch (error) {
+    } catch (error: any) {
       const errorMessage = error instanceof Error 
         ? error.message 
         : (error && typeof error === 'object' && 'response' in error) 
           ? (error.response as any).error 
           : 'Failed to create college administrator';
       set({ error: errorMessage, isSubmitting: false });
-      
-      // Show error message
-      Alert.alert(
-        'Error',
-        errorMessage,
-        [{ text: 'OK' }]
-      );
-      
       throw error;
     }
   },

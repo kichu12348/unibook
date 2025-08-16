@@ -86,7 +86,7 @@ export const fetchUsers = async (searchTerm?: string): Promise<User[]> => {
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
-      throw new Error(error.response.data.message || "Failed to fetch users");
+      throw new Error(error.response.data.error || "Failed to fetch users");
     }
     throw new Error("Failed to fetch users. Please try again.");
   }
@@ -213,7 +213,7 @@ export const fetchVenues = async (searchTerm?: string): Promise<Venue[]> => {
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
-      throw new Error(error.response.data.message || "Failed to fetch venues");
+      throw new Error(error.response.data.error || "Failed to fetch venues");
     }
     throw new Error("Failed to fetch venues. Please try again.");
   }
@@ -228,7 +228,7 @@ export const createVenue = async (
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
-      throw new Error(error.response.data.message || "Failed to create venue");
+      throw new Error(error.response.data.error || "Failed to create venue");
     }
     throw new Error("Failed to create venue. Please try again.");
   }
@@ -241,7 +241,7 @@ export const fetchVenueDetails = async (venueId: string): Promise<Venue> => {
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
       throw new Error(
-        error.response.data.message || "Failed to fetch venue details"
+        error.response.data.error || "Failed to fetch venue details"
       );
     }
     throw new Error("Failed to fetch venue details. Please try again.");
@@ -257,7 +257,7 @@ export const updateVenue = async (
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
-      throw new Error(error.response.data.message || "Failed to update venue");
+      throw new Error(error.response.data.error || "Failed to update venue");
     }
     throw new Error("Failed to update venue. Please try again.");
   }
@@ -272,7 +272,7 @@ export const deleteForum = async (
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
-      throw new Error(error.response.data.message || "Failed to delete forum");
+      throw new Error(error.response.data.error || "Failed to delete forum");
     }
     throw new Error("Failed to delete forum. Please try again.");
   }
@@ -287,7 +287,7 @@ export const deleteVenue = async (
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
-      throw new Error(error.response.data.message || "Failed to delete venue");
+      throw new Error(error.response.data.error || "Failed to delete venue");
     }
     throw new Error("Failed to delete venue. Please try again.");
   }

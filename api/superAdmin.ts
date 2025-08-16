@@ -59,7 +59,7 @@ export const createCollege = async (
 
     if (axios.isAxiosError(error)) {
       const message =
-        error.response?.data?.message || "Failed to create college.";
+        error.response?.data?.error || "Failed to create college.";
       throw new Error(message);
     }
 
@@ -78,19 +78,6 @@ export const fetchCollegeDetails = async (
     return response.data;
   } catch (error) {
     console.error("Error fetching college details:", error);
-
-    // Return mock data for development
-    if (__DEV__) {
-      return {
-        id: collegeId,
-        name: "Sample University",
-        domainName: "sample.edu",
-        hasPaid: true,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-    }
-
     throw new Error("Failed to fetch college details. Please try again.");
   }
 };
@@ -106,28 +93,6 @@ export const fetchCollegeAdmins = async (
     return response.data;
   } catch (error) {
     console.error("Error fetching college admins:", error);
-
-    // Return mock data for development
-    if (__DEV__) {
-      return [
-        {
-          id: "1",
-          fullName: "John Doe",
-          email: "john.doe@sample.edu",
-          role: "college_admin",
-          createdAt: new Date().toISOString(),
-          collegeId: collegeId,
-        },
-        {
-          id: "2",
-          fullName: "Jane Smith",
-          email: "jane.smith@sample.edu",
-          role: "college_admin",
-          createdAt: new Date().toISOString(),
-          collegeId: collegeId,
-        },
-      ];
-    }
 
     throw new Error(
       "Failed to fetch college administrators. Please try again."
@@ -151,7 +116,7 @@ export const createCollegeAdmin = async (
 
     if (axios.isAxiosError(error) && error.response) {
       throw new Error(
-        error.response.data.message || "Failed to create college administrator"
+        error.response.data.error || "Failed to create college administrator"
       );
     }
 
@@ -177,7 +142,7 @@ export const updateCollege = async (
 
     if (axios.isAxiosError(error) && error.response) {
       throw new Error(
-        error.response.data.message || "Failed to update college"
+        error.response.data.error || "Failed to update college"
       );
     }
 

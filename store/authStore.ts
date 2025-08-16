@@ -131,14 +131,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   register: async (formData: RegisterFormData) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await registerUser(formData);
-
-      Alert.alert(
-        "Registration Successful!",
-        response.message || "Please check your email for a verification code.",
-        [{ text: "OK" }]
-      );
-
+      await registerUser(formData);
       set({ isLoading: false, error: null });
       return true;
     } catch (error) {

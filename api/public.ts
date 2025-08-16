@@ -73,7 +73,7 @@ export const registerUser = async (
   } catch (error) {
     if (axios.isAxiosError(error)) {
       const message =
-        error.response?.data?.message ||
+        error.response?.data?.error ||
         "Registration failed. Please try again.";
       throw new Error(message);
     }
