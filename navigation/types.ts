@@ -3,7 +3,14 @@ import { EventDetails } from "../api/forum";
 export type AuthStackParamList = {
   Login: undefined;
   Register: undefined;
-  OtpVerification: { email: string; fullName: string };
+  OtpVerification: {
+    email: string;
+    fullName: string;
+    isVerificationError?: boolean;
+  };
+  ForgotPassword: { email?: string };
+  VerifyResetOtp: { email: string };
+  ResetPassword: { email: string; otp: string };
 };
 
 export type SuperAdminTabParamList = {

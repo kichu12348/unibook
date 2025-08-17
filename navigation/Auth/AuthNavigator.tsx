@@ -1,9 +1,12 @@
-import React from 'react';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { AuthStackParamList } from '../types';
-import LoginScreen from '../../screens/Auth/LoginScreen';
-import RegisterScreen from '../../screens/Auth/RegisterScreen';
-import OtpVerificationScreen from '../../screens/Auth/OtpVerificationScreen';
+import React from "react";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { AuthStackParamList } from "../types";
+import LoginScreen from "../../screens/Auth/LoginScreen";
+import RegisterScreen from "../../screens/Auth/RegisterScreen";
+import OtpVerificationScreen from "../../screens/Auth/OtpVerificationScreen";
+import ForgotPasswordScreen from "../../screens/Auth/ForgotPasswordScreen";
+import VerifyResetOtpScreen from "../../screens/Auth/VerifyResetOtpScreen";
+import ResetPasswordScreen from "../../screens/Auth/ResetPasswordScreen";
 
 const Stack = createNativeStackNavigator<AuthStackParamList>();
 
@@ -19,6 +22,9 @@ const AuthNavigator: React.FC = () => {
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="Register" component={RegisterScreen} />
       <Stack.Screen name="OtpVerification" component={OtpVerificationScreen} />
+      <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
+      <Stack.Screen name="VerifyResetOtp" component={VerifyResetOtpScreen} />
+      <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
     </Stack.Navigator>
   );
 };

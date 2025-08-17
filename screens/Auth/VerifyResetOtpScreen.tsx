@@ -6,29 +6,29 @@ import {
   Alert,
   TouchableOpacity,
   useWindowDimensions,
-  ScrollView,
+  ScrollView
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { AuthStackParamList } from "../../navigation/types";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme } from "../../hooks/useTheme";
 import { useAuthStore } from "../../store/authStore";
+import { AuthStackParamList } from "../../navigation/types";
 import StyledButton from "../../components/StyledButton";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Ionicons } from "@expo/vector-icons";
 
-type NavigationProp = NativeStackNavigationProp<
-  AuthStackParamList,
-  "OtpVerification"
->;
-type RouteProps = RouteProp<AuthStackParamList, "OtpVerification">;
+type NavigationProp = NativeStackNavigationProp<AuthStackParamList>;
+type RouteProps = RouteProp<AuthStackParamList, "VerifyResetOtp">;
 
-const OtpVerificationScreen: React.FC = () => {
+const VerifyResetOtpScreen: React.FC = () => {
   const theme = useTheme();
   const navigation = useNavigation<NavigationProp>();
   const route = useRoute<RouteProps>();
-  const { email, fullName, isVerificationError } = route.params;
-  const { verifyOtp, isLoading, error, clearError, resendOtp } = useAuthStore();
+  const insets = useSafeAreaInsets();
+  const { verifyPasswordResetOtp, isLoading, error, requestPasswordReset } =
+    useAuthStore();
+  const { email } = route.params;
+
   const [otp, setOtp] = useState("");
   const [otpError, setOtpError] = useState<string | undefined>();
   const [scrollable, setScrollable] = useState<boolean>(false);
@@ -37,19 +37,19 @@ const OtpVerificationScreen: React.FC = () => {
 
   const handleResendOtp = async () => {
     setIsResending(true);
-    await resendOtp(email);
+    await requestPasswordReset({ email });
     setIsResending(false);
+    Alert.alert(
+      "Code Sent",
+      "A new verification code has been sent to your email"
+    );
   };
 
   useEffect(() => {
     if (error) {
-      Alert.alert("Error", error, [{ text: "OK", onPress: clearError }]);
+      Alert.alert("Error", error);
     }
-  }, [error, clearError]);
-
-  useEffect(() => {
-    if (isVerificationError) handleResendOtp();
-  }, []);
+  }, [error]);
 
   const validateOtp = (): boolean => {
     if (!otp.trim()) {
@@ -68,25 +68,15 @@ const OtpVerificationScreen: React.FC = () => {
     return true;
   };
 
-  const handleVerifyOtp = async () => {
+  const handleVerify = async () => {
     if (!validateOtp()) {
       return;
     }
-    try {
-      await verifyOtp(
-        {
-          email,
-          otp: otp.trim(),
-        },
-        fullName
-      );
-    } catch (error) {
-      console.error("OTP verification error:", error);
-    }
-  };
 
-  const handleBack = () => {
-    navigation.goBack();
+    const success = await verifyPasswordResetOtp({ email, otp: otp.trim() });
+    if (success) {
+      navigation.navigate("ResetPassword", { email, otp: otp.trim() });
+    }
   };
 
   const handleNumberPress = (number: string) => {
@@ -311,20 +301,22 @@ const OtpVerificationScreen: React.FC = () => {
       padding: 0,
     },
   });
-  const insets = useSafeAreaInsets();
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <View style={styles.content}>
         <View style={styles.header}>
-          <TouchableOpacity onPress={handleBack} style={styles.backButton}>
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            style={styles.backButton}
+          >
             <Ionicons
               name="chevron-back"
               size={24}
               color={theme.colors.primary}
             />
           </TouchableOpacity>
-          <Text style={styles.title}>Verify Email</Text>
+          <Text style={styles.title}>Enter Code</Text>
           <Text style={styles.subtitle}>
             Enter the 4-digit verification code sent to{"\n"}
             <Text style={styles.emailText}>{email}</Text>
@@ -348,7 +340,7 @@ const OtpVerificationScreen: React.FC = () => {
             <View style={styles.buttonContainer}>
               <StyledButton
                 title="Verify Code"
-                onPress={handleVerifyOtp}
+                onPress={handleVerify}
                 loading={isLoading}
                 disabled={otp.length !== 4}
               />
@@ -371,4 +363,4 @@ const OtpVerificationScreen: React.FC = () => {
   );
 };
 
-export default OtpVerificationScreen;
+export default VerifyResetOtpScreen;

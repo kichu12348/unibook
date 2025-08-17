@@ -102,6 +102,22 @@ export interface UserProfile {
   createdAt: string;
 }
 
+
+export interface ForgotPasswordData {
+  email: string;
+}
+
+export interface VerifyResetOtpData {
+  email: string;
+  otp: string;
+}
+
+export interface ResetPasswordData {
+  email: string;
+  otp: string;
+  password: string;
+}
+
 // Authentication API functions
 export const loginUser = async (
   credentials: LoginCredentials
@@ -111,7 +127,11 @@ export const loginUser = async (
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
-      throw new Error(error.response.data.error || "Login failed");
+      throw {
+        message: error.response.data.error || "Login failed",
+        code: error.response.data.code,
+        email: error.response.data.email
+      };
     }
     throw new Error("Network error. Please check your connection.");
   }
@@ -157,6 +177,64 @@ export const fetchMe = async (): Promise<UserProfile> => {
       throw new Error(
         error.response.data.error || "Failed to fetch user profile"
       );
+    }
+    throw new Error("Network error. Please check your connection.");
+  }
+};
+
+
+export const resendUserOtp = async (
+  email: string
+): Promise<{ message: string }> => {
+  try {
+    const response = await publicApi.post("/auth/resend-otp", { email });
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      throw new Error(error.response.data.error || "Failed to resend OTP");
+    }
+    throw new Error("Network error. Please check your connection.");
+  }
+};
+
+
+export const requestPasswordReset = async (
+  data: ForgotPasswordData
+): Promise<{ message: string }> => {
+  try {
+    const response = await publicApi.post("/auth/forgot-password", data);
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      throw new Error(error.response.data.error || "Request failed");
+    }
+    throw new Error("Network error. Please check your connection.");
+  }
+};
+
+export const verifyPasswordResetOtp = async (
+  data: VerifyResetOtpData
+): Promise<{ message: string }> => {
+  try {
+    const response = await publicApi.post("/auth/verify-reset-otp", data);
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      throw new Error(error.response.data.error || "OTP verification failed");
+    }
+    throw new Error("Network error. Please check your connection.");
+  }
+};
+
+export const resetUserPassword = async (
+  data: ResetPasswordData
+): Promise<{ message: string }> => {
+  try {
+    const response = await publicApi.post("/auth/reset-password", data);
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      throw new Error(error.response.data.error || "Password reset failed");
     }
     throw new Error("Network error. Please check your connection.");
   }

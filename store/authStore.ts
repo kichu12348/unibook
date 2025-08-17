@@ -10,9 +10,15 @@ import {
   RegisterFormData,
   VerifyOtpData,
   setLocalAuthToken,
-  removeLocalAuthToken
+  removeLocalAuthToken,
+  resendUserOtp,
+  requestPasswordReset,
+  verifyPasswordResetOtp,
+  resetUserPassword,
+  ForgotPasswordData,
+  VerifyResetOtpData,
+  ResetPasswordData,
 } from "../api/auth";
-
 import { APP_CONFIG } from "../constants/config";
 
 const { TOKEN_KEY, USER_KEY } = APP_CONFIG;
@@ -48,11 +54,13 @@ interface AuthState {
   login: (email: string, password: string) => Promise<void>;
   register: (formData: RegisterFormData) => Promise<boolean>;
   verifyOtp: (data: VerifyOtpData, fullName: string) => Promise<boolean>;
+  resendOtp: (email: string) => Promise<boolean>;
+  requestPasswordReset: (data: ForgotPasswordData) => Promise<boolean>;
+  verifyPasswordResetOtp: (data: VerifyResetOtpData) => Promise<boolean>;
+  resetPassword: (data: ResetPasswordData) => Promise<boolean>;
   logout: () => Promise<void>;
   clearError: () => void;
 }
-
-
 
 export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
@@ -94,7 +102,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
   },
 
-  login: async (email: string, password: string) => {
+  login: async (email, password) => {
     set({ isLoading: true, error: null });
     try {
       const credentials: LoginCredentials = { email, password };
@@ -102,29 +110,38 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       await AsyncStorage.setItem(TOKEN_KEY, response.token);
       setLocalAuthToken(response.token);
       const user = await fetchMe();
-      await AsyncStorage.setItem(USER_KEY, JSON.stringify(user ? user : {}));
-
+      await AsyncStorage.setItem(USER_KEY, JSON.stringify(user));
       set({
-        user: user,
+        user,
         token: response.token,
         isAuthenticated: true,
         isLoading: false,
         error: null,
       });
-    } catch (error) {
-      console.error("Login error:", error);
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : "Login failed. Please try again.";
-      set({
-        isLoading: false,
-        error: errorMessage,
-        isAuthenticated: false,
-        user: null,
-        token: null,
-      });
-      throw error;
+    } catch (error: any) {
+      if (error && error.code === "NOT_VERIFIED") {
+        set({
+          isLoading: false,
+          error: null,
+        });
+        throw {
+          ...error,
+          isVerificationError: true,
+        };
+      } else {
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : "Login failed. Please try again.";
+        set({
+          isLoading: false,
+          error: errorMessage,
+          isAuthenticated: false,
+          user: null,
+          token: null,
+        });
+        throw error;
+      }
     }
   },
 
@@ -149,7 +166,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       const response = await verifyUserOtp(data);
-
       if (response.token) {
         setLocalAuthToken(response.token);
         const user = await fetchMe();
@@ -189,11 +205,73 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
   },
 
+  resendOtp: async (email: string) => {
+    set({ isLoading: true, error: null });
+    try {
+      await resendUserOtp(email);
+      set({ isLoading: false });
+      Alert.alert("Success", "A new OTP has been sent to your email.");
+      return true;
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Failed to resend OTP. Please try again.";
+      set({ isLoading: false, error: errorMessage });
+      return false;
+    }
+  },
+
+  requestPasswordReset: async (data) => {
+    set({ isLoading: true, error: null });
+    try {
+      await requestPasswordReset(data);
+      set({ isLoading: false });
+      return true;
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Request failed";
+      set({ isLoading: false, error: errorMessage });
+      return false;
+    }
+  },
+
+  verifyPasswordResetOtp: async (data) => {
+    set({ isLoading: true, error: null });
+    try {
+      await verifyPasswordResetOtp(data);
+      set({ isLoading: false });
+      return true;
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "OTP verification failed";
+      set({ isLoading: false, error: errorMessage });
+      return false;
+    }
+  },
+
+  resetPassword: async (data) => {
+    set({ isLoading: true, error: null });
+    try {
+      await resetUserPassword(data);
+      set({ isLoading: false });
+      Alert.alert(
+        "Success",
+        "Your password has been reset successfully. Please log in."
+      );
+      return true;
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Password reset failed";
+      set({ isLoading: false, error: errorMessage });
+      return false;
+    }
+  },
+
   logout: async () => {
     try {
       await AsyncStorage.removeItem(TOKEN_KEY);
       await AsyncStorage.removeItem(USER_KEY);
-
 
       removeLocalAuthToken();
 

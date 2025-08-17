@@ -32,11 +32,9 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
 
   useEffect(() => {
     if (error) {
-      Alert.alert('Login Failed', error, [
-        { text: 'OK', onPress: clearError }
-      ]);
+      Alert.alert("Login Failed", error, [{ text: "OK", onPress: clearError }]);
     }
-  }, [error]);
+  }, [error, clearError]);
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
@@ -70,7 +68,20 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
   const handleLogin = async () => {
     if (!validateForm()) return;
 
-    await login(email.trim(), password);
+    try {
+      await login(email.trim(), password);
+    } catch (error: any) {
+      console.log("Login error:", error);
+      if (error.isVerificationError) {
+        navigation.navigate("OtpVerification", {
+          email: error.email,
+          fullName: "",
+          isVerificationError: true,
+        });
+      } else {
+        console.log("A general login error occurred.");
+      }
+    }
   };
 
   const handleRegisterNavigation = () => {
@@ -125,7 +136,6 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
       paddingVertical: 0,
     },
   });
-
   const insets = useSafeAreaInsets();
 
   return (
@@ -190,7 +200,17 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
                 }
               />
             </View>
-
+            <TouchableOpacity
+              style={{ alignItems: "flex-end", marginBottom: 24 }}
+              onPress={() =>
+                navigation.navigate("ForgotPassword", { email: email.trim() })
+              }
+              activeOpacity={0.7}
+            >
+              <Text style={{ color: theme.colors.primary, fontWeight: "500" }}>
+                Forgot Password?
+              </Text>
+            </TouchableOpacity>
             <StyledButton
               title="Login"
               onPress={handleLogin}
