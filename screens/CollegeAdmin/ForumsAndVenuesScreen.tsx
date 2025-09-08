@@ -21,6 +21,8 @@ import { TAB_BAR_HEIGHT } from "../../constants/constants";
 
 type NavigationProp = NativeStackNavigationProp<ManagementStackParamList>;
 
+let timeout: NodeJS.Timeout;
+
 const ForumsAndVenuesScreen: React.FC = () => {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
@@ -50,8 +52,17 @@ const ForumsAndVenuesScreen: React.FC = () => {
   }, [isFocused]);
 
   useEffect(() => {
-    if (debouncedSearchTerm.trim() === "" || debouncedSearchTerm.length < 3)
-      return;
+    if (debouncedSearchTerm.trim() === "" || debouncedSearchTerm.length < 3) {
+      if (timeout) clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        if (activeTab === "forums") {
+          getForums();
+        } else {
+          getVenues();
+        }
+      }, 500);
+      return () => clearTimeout(timeout);
+    }
     if (activeTab === "forums") {
       getForums(debouncedSearchTerm);
     } else {
@@ -148,6 +159,13 @@ const ForumsAndVenuesScreen: React.FC = () => {
     );
   };
 
+  const handleTabPress = (tab: "forums" | "venues") => {
+    if (tab === activeTab) return;
+    setActiveTab(tab);
+    setSearchTerm("");
+    Keyboard.dismiss();
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -156,7 +174,7 @@ const ForumsAndVenuesScreen: React.FC = () => {
         <View style={styles.tabContainer}>
           <TouchableOpacity
             style={[styles.tab, activeTab === "forums" && styles.activeTab]}
-            onPress={() => setActiveTab("forums")}
+            onPress={() => handleTabPress("forums")}
             activeOpacity={0.7}
           >
             <Text
@@ -170,7 +188,7 @@ const ForumsAndVenuesScreen: React.FC = () => {
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.tab, activeTab === "venues" && styles.activeTab]}
-            onPress={() => setActiveTab("venues")}
+            onPress={() => handleTabPress("venues")}
             activeOpacity={0.7}
           >
             <Text

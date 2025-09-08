@@ -11,6 +11,7 @@ import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { ManagementStackParamList } from "../../navigation/CollegeAdmin/ManagementStack";
 import { useTheme } from "../../hooks/useTheme";
+import { TAB_BAR_HEIGHT } from "../../constants/constants";
 
 type NavigationProp = NativeStackNavigationProp<ManagementStackParamList>;
 
@@ -45,7 +46,7 @@ const ForumListScreen: React.FC<ForumListScreenProps> = ({
     listContainer: {
       paddingHorizontal: 24,
       paddingTop: 16,
-      paddingBottom: 150,
+      paddingBottom: TAB_BAR_HEIGHT + 120,
     },
     loadingContainer: {
       flex: 1,

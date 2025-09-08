@@ -1,20 +1,20 @@
-import React, { useEffect, useMemo, useCallback, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
-  FlatList,
   ActivityIndicator,
   Alert,
-  TouchableOpacity,
+  FlatList,
   RefreshControl,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { useTheme } from "../../hooks/useTheme";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useCollegeAdminStore } from "../../store/collegeAdminStore";
 import { User } from "../../api/collegeAdmin";
 import { Ionicons } from "@expo/vector-icons";
-import { RouteProp, useRoute, useIsFocused } from "@react-navigation/native";
+import { RouteProp, useRoute } from "@react-navigation/native";
 import { CollegeAdminTabParamList } from "../../navigation/types";
 import StyledButton from "../../components/StyledButton";
 import StyledTextInput from "../../components/StyledTextInput";
@@ -26,7 +26,6 @@ const UsersScreen: React.FC = () => {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const route = useRoute<UsersScreenRouteProp>();
-  const isFocused = useIsFocused();
 
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -45,11 +44,10 @@ const UsersScreen: React.FC = () => {
   const filter = route.params?.filter;
 
   useEffect(() => {
-    if (isFocused) {
-      getUsers(debouncedSearchTerm);
-    }
+    getUsers(debouncedSearchTerm);
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isFocused, debouncedSearchTerm]);
+  }, [debouncedSearchTerm]);
 
   // --- MODIFIED APPROVAL LOGIC ---
   const handleApprove = (user: User) => {
@@ -59,7 +57,7 @@ const UsersScreen: React.FC = () => {
 
       if (!pendingForum) {
         Alert.alert(
-          "Approval Error",
+          "Error",
           "Could not find a pending forum for this user. They may already be approved or their registration is incomplete."
         );
         return;
@@ -195,20 +193,38 @@ const UsersScreen: React.FC = () => {
         <Text style={styles.userEmail}>{item.email}</Text>
         <Text style={styles.userRole}>Role: {item.role.replace("_", " ")}</Text>
         {item.approvalStatus === "pending" && (
-          <View style={styles.actionsContainer}>
-            <StyledButton
-              title="Reject"
-              onPress={() => handleReject(item)}
-              variant="secondary"
-              size="small"
-              style={styles.actionButton}
-            />
-            <StyledButton
-              title="Approve"
-              onPress={() => handleApprove(item)}
-              size="small"
-              style={styles.actionButton}
-            />
+          <View
+            style={[
+              styles.actionsContainer,
+              { justifyContent: "space-between" },
+            ]}
+          >
+            <TouchableOpacity
+              style={styles.deleteIcon}
+              onPress={() => handleDelete(item.id)}
+            >
+              <Ionicons
+                name="trash-outline"
+                size={20}
+                color={theme.colors.error}
+              />
+            </TouchableOpacity>
+
+            <View style={{ flexDirection: "row" }}>
+              <StyledButton
+                title="Reject"
+                onPress={() => handleReject(item)}
+                variant="secondary"
+                size="small"
+                style={styles.actionButton}
+              />
+              <StyledButton
+                title="Approve"
+                onPress={() => handleApprove(item)}
+                size="small"
+                style={styles.actionButton}
+              />
+            </View>
           </View>
         )}
         {item.approvalStatus !== "pending" && (
@@ -217,6 +233,9 @@ const UsersScreen: React.FC = () => {
               style={styles.deleteIcon}
               onPress={() => handleDelete(item.id)}
             >
+              <Text style={{ color: theme.colors.error, marginRight: 8 }}>
+                Delete
+              </Text>
               <Ionicons
                 name="trash-outline"
                 size={20}
@@ -287,6 +306,7 @@ const UsersScreen: React.FC = () => {
       borderRadius: 12,
       paddingHorizontal: 8,
       paddingVertical: 2,
+      borderStyle: "dotted",
     },
     statusText: {
       fontSize: 10,
@@ -300,7 +320,17 @@ const UsersScreen: React.FC = () => {
       alignItems: "center",
     },
     actionButton: { minWidth: 80, marginLeft: 8 },
-    deleteIcon: { padding: 8 },
+    deleteIcon: {
+      paddingHorizontal: 16,
+      paddingVertical: 4,
+      borderWidth: 1,
+      borderColor: theme.colors.error,
+      borderRadius: 8,
+      borderStyle: "dashed",
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+    },
   });
 
   return (
